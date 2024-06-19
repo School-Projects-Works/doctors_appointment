@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1024541304136",
+    "project_id": "doctors-appointment-3f8fa",
+    "storage_bucket": "doctors-appointment-3f8fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024541304136:android:87c1ff6317049045afbf7d",
+        "android_client_info": {
+          "package_name": "com.kodatec.doctors_appointment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdhf2mgvwxk6VoZVkbQHZjwMLoP_N7GtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

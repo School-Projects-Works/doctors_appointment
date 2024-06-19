@@ -1,0 +1,208 @@
+import 'package:doctors_appointment/utils/styles.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+
+enum DialogType { error, success, warning, info }
+
+class CustomDialogs {
+  static dismiss() {
+    SmartDialog.dismiss();
+  }
+
+  // show loading dialog
+  static loading({required String message}) {
+    return SmartDialog.showLoading(
+      msg: message,
+      alignment: Alignment.center,
+      animationType: SmartAnimationType.centerFade_otherSlide,
+    );
+  }
+
+  static toast({required String message, DialogType type = DialogType.info}) {
+    return SmartDialog.showToast(
+      message,
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      alignment: Alignment.center,
+      builder: (context) {
+        var styles = Styles(context);
+        return Container(
+          color: Colors.transparent,
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
+                  color: type == DialogType.error
+                      ? Colors.red
+                      : type == DialogType.success
+                          ? Colors.green
+                          : type == DialogType.warning
+                              ? Colors.orange
+                              : Colors.blue,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      type == DialogType.error
+                          ? Icons.error
+                          : type == DialogType.success
+                              ? Icons.check_circle
+                              : type == DialogType.warning
+                                  ? Icons.warning
+                                  : Icons.info,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      message,
+                      style: styles.body(
+                          color: Colors.white,
+                          desktop: 15,
+                          mobile: 12,
+                          tablet: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // show success dialog
+  static showDialog(
+      {required String message,
+      DialogType type = DialogType.info,
+      String? secondBtnText,
+      VoidCallback? onConfirm}) {
+    return SmartDialog.show(
+      alignment: Alignment.center,
+      animationType: SmartAnimationType.centerFade_otherSlide,
+      animationTime: const Duration(milliseconds: 500),
+      clickMaskDismiss: true,
+      maskColor: Colors.black.withOpacity(0.5),
+      builder: (context) {
+        var styles = Styles(context);
+        return Container(
+          color: Colors.transparent,
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: type == DialogType.error
+                          ? Colors.red
+                          : type == DialogType.success
+                              ? Colors.green
+                              : Colors.blue,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Icon(
+                            type == DialogType.error
+                                ? Icons.error
+                                : type == DialogType.success
+                                    ? Icons.check_circle
+                                    : type == DialogType.warning
+                                        ? Icons.warning
+                                        : Icons.info,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 15),
+                          child: Text(
+                            message,
+                            style: styles.body(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          height: 30,
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: const BoxDecoration(
+                            color: Colors.transparent,
+                            border: Border(
+                                top: BorderSide(color: Colors.white, width: 1)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (onConfirm != null &&
+                                  secondBtnText != null &&
+                                  secondBtnText.isNotEmpty)
+                                InkWell(
+                                  onTap: onConfirm,
+                                  child: Row(
+                                    children: [
+                                      Text(secondBtnText,
+                                          style: styles.body(
+                                              color: Colors.white,
+                                              desktop: 12,
+                                              mobile: 12,
+                                              tablet: 12)),
+                                    ],
+                                  ),
+                                ),
+                              if (onConfirm != null &&
+                                  secondBtnText != null &&
+                                  secondBtnText.isNotEmpty)
+                                const VerticalDivider(
+                                  color: Colors.white,
+                                  thickness: 1,
+                                ),
+                              InkWell(
+                                onTap: () {
+                                  SmartDialog.dismiss();
+                                },
+                                child: Row(
+                                  children: [
+                                    Text(
+                                        onConfirm != null &&
+                                                secondBtnText != null &&
+                                                secondBtnText.isNotEmpty
+                                            ? 'Cancel'
+                                            : 'Okay',
+                                        style: styles.body(
+                                            color: Colors.white,
+                                            desktop: 12,
+                                            mobile: 12,
+                                            tablet: 12)),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

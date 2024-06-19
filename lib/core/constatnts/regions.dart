@@ -1,0 +1,18 @@
+List<String> regionsInGhana = [
+  'Ahafo Region',
+  'Ashanti Region',
+  'Bono Region',
+  'Bono East Region',
+  'Central Region',
+  'Eastern Region',
+  'Greater Accra Region',
+  'Northern Region',
+  'North East Region',
+  'Oti Region',
+  'Savannah Region',
+  'Upper East Region',
+  'Upper West Region',
+  'Volta Region',
+  'Western Region',
+  'Western North Region',
+];
