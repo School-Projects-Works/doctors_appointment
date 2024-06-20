@@ -9,7 +9,8 @@ class DoctorServices {
   static Stream<List<UserModel>> getDoctors() {
     final snapshot = _doctorsCollection
         .where('userRole', isEqualTo: 'Doctor')
-        .where('userStatus', whereIn: ['active', 'inactive']).snapshots();
+        .where('userStatus',
+            whereIn: ['active', 'inactive', 'Inactive', 'Active']).snapshots();
     return snapshot.map((event) => event.docs
         .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))
         .toList());
@@ -31,11 +32,9 @@ class DoctorServices {
     await _doctorsCollection.doc(user.id).update(user.toMap());
   }
 
-
   static Future<List<UserModel>> getAllDoctors() async {
-    final snapshot = await _doctorsCollection
-        .where('userRole', isEqualTo: 'Doctor')
-        .get();
+    final snapshot =
+        await _doctorsCollection.where('userRole', isEqualTo: 'Doctor').get();
     return snapshot.docs
         .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))
         .toList();

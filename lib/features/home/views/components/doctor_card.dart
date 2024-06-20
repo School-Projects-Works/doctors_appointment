@@ -103,21 +103,23 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
                       const Spacer(),
                       //blinking icon to indecate active and inactive
                       Icon(
-                        widget.doctor.userStatus == 'active'
+                        widget.doctor.userStatus!.toLowerCase() == 'active'
                             ? Icons.circle
                             : Icons.circle_outlined,
                         size: 15,
-                        color: widget.doctor.userStatus == 'active'
-                            ? Colors.green
-                            : Colors.red,
+                        color:
+                            widget.doctor.userStatus!.toLowerCase() == 'active'
+                                ? Colors.green
+                                : Colors.red,
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        widget.doctor.userStatus == 'active'
+                        widget.doctor.userStatus!.toLowerCase() == 'active'
                             ? 'Active'
                             : 'Inactive',
                         style: styles.subtitle(
-                            color: widget.doctor.userStatus == 'active'
+                            color: widget.doctor.userStatus!.toLowerCase() ==
+                                    'active'
                                 ? Colors.green
                                 : Colors.red,
                             desktop: 13,
