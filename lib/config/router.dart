@@ -3,15 +3,20 @@ import 'package:doctors_appointment/features/auth/pages/login/state/login_provid
 import 'package:doctors_appointment/features/auth/pages/login/views/login_page.dart';
 import 'package:doctors_appointment/features/auth/pages/register/views/register_page.dart';
 import 'package:doctors_appointment/features/contact/views/contact_page.dart';
+import 'package:doctors_appointment/features/dashboard/pages/appointment_page.dart';
 import 'package:doctors_appointment/features/dashboard/pages/dashboard_page.dart';
 import 'package:doctors_appointment/features/dashboard/views/main_page.dart';
 import 'package:doctors_appointment/features/home/views/home_page.dart';
 import 'package:doctors_appointment/features/main/views/main_page.dart';
+import 'package:doctors_appointment/features/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:doctors_appointment/config/routes/router_item.dart';
 
+import '../features/dashboard/pages/doctors_page.dart';
+import '../features/dashboard/pages/patients_page.dart';
+import '../features/home/views/components/user_view_page.dart';
 
 class MyRouter {
   final WidgetRef ref;
@@ -41,6 +46,16 @@ class MyRouter {
                   );
                 },
                 routes: [
+                  GoRoute(
+                      path: RouterItem.viewUserRoute.path,
+                      name: RouterItem.viewUserRoute.name,
+                      builder: (context, state) {
+                        var id = state.pathParameters['id']!;
+                        return  ViewUser(
+                        
+                          userId: id,
+                        );
+                      }),
                   GoRoute(
                     path: RouterItem.homeRoute.path,
                     builder: (context, state) {
@@ -93,6 +108,30 @@ class MyRouter {
                       builder: (context, state) {
                         return const DashboardPage();
                       }),
+                  GoRoute(
+                      path: RouterItem.doctorsRoute.path,
+                      builder: (context, state) {
+                        return const DoctorsPage();
+                      }),
+                  GoRoute(
+                    path: RouterItem.patientsRoute.path,
+                    name: RouterItem.patientsRoute.name,
+                    builder: (context, state) {
+                      return const PatientsPage();
+                    },
+                  ),
+                  GoRoute(
+                      path: RouterItem.appointmentsRoute.path,
+                      name: RouterItem.appointmentsRoute.name,
+                      builder: (context, state) {
+                        return const AppointmentsPage();
+                      }),
+                  GoRoute(
+                      path: RouterItem.profileRoute.path,
+                      name: RouterItem.profileRoute.name,
+                      builder: (context, state) {
+                        return const ProfilePage();
+                      }),
                 ])
           ]);
 
@@ -101,12 +140,11 @@ class MyRouter {
     contex.go(item.path);
   }
 
-  void navigateToNamed({required String id, required RouterItem item}) {
+  void navigateToNamed({required Map<String,String> pathParms, required RouterItem item, Map<String, dynamic>? extra}) {
     ref.read(routerProvider.notifier).state = item.name;
-    contex.goNamed(item.name,pathParameters: {'id': id});
+    contex.goNamed(item.name, pathParameters: pathParms,extra: extra);
   }
 }
-
 
 final routerProvider = StateProvider<String>((ref) {
   return RouterItem.homeRoute.name;

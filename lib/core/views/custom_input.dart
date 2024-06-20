@@ -78,7 +78,7 @@ class CustomTextFields extends ConsumerWidget {
           fontWeight: FontWeight.w500,
           mobile: 14,
           color: isReadOnly!
-              ? Colors.grey
+              ? Theme.of(context).textTheme.labelLarge!.color
               : Theme.of(context).textTheme.labelLarge!.color),
       onChanged: onChanged,
       onSaved: onSaved,

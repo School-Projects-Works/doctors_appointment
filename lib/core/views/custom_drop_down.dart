@@ -1,8 +1,6 @@
 import 'package:doctors_appointment/utils/styles.dart';
 import 'package:flutter/material.dart';
 
-
-
 class CustomDropDown extends StatelessWidget {
   const CustomDropDown(
       {super.key,
@@ -33,12 +31,11 @@ class CustomDropDown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var styles = Styles(context);
+   
     return DropdownButtonHideUnderline(
         child: DropdownButtonFormField(
       borderRadius: BorderRadius.circular(5),
-      style: styles.body(
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).textTheme.labelLarge!.color),
+      style: styles.body(color: Theme.of(context).textTheme.labelLarge!.color),
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radius ?? 5),

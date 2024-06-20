@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:doctors_appointment/features/auth/pages/register/data/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:universal_html/html.dart';
 
 class RegistrationServices {
@@ -89,6 +92,16 @@ class RegistrationServices {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  static Future<String>uploadImage(Uint8List image)async {
+    try {
+      var ref = FirebaseStorage.instance.ref().child('images/${getId()}');
+      await ref.putData(image);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      return '';
     }
   }
 }

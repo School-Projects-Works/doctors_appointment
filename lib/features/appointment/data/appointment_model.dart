@@ -1,11 +1,13 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class AppointmentModel {
   String id;
   String doctorId;
   String patientId;
+  String doctorName;
+  String patientName;
   String date;
   String time;
   String status;
@@ -14,6 +16,8 @@ class AppointmentModel {
     required this.id,
     required this.doctorId,
     required this.patientId,
+    required this.doctorName,
+    required this.patientName,
     required this.date,
     required this.time,
     required this.status,
@@ -24,6 +28,8 @@ class AppointmentModel {
     String? id,
     String? doctorId,
     String? patientId,
+    String? doctorName,
+    String? patientName,
     String? date,
     String? time,
     String? status,
@@ -33,6 +39,8 @@ class AppointmentModel {
       id: id ?? this.id,
       doctorId: doctorId ?? this.doctorId,
       patientId: patientId ?? this.patientId,
+      doctorName: doctorName ?? this.doctorName,
+      patientName: patientName ?? this.patientName,
       date: date ?? this.date,
       time: time ?? this.time,
       status: status ?? this.status,
@@ -45,6 +53,8 @@ class AppointmentModel {
       'id': id,
       'doctorId': doctorId,
       'patientId': patientId,
+      'doctorName': doctorName,
+      'patientName': patientName,
       'date': date,
       'time': time,
       'status': status,
@@ -57,6 +67,8 @@ class AppointmentModel {
       id: map['id'] ?? '',
       doctorId: map['doctorId'] ?? '',
       patientId: map['patientId'] ?? '',
+      doctorName: map['doctorName'] ?? '',
+      patientName: map['patientName'] ?? '',
       date: map['date'] ?? '',
       time: map['time'] ?? '',
       status: map['status'] ?? '',
@@ -66,11 +78,12 @@ class AppointmentModel {
 
   String toJson() => json.encode(toMap());
 
-  factory AppointmentModel.fromJson(String source) => AppointmentModel.fromMap(json.decode(source));
+  factory AppointmentModel.fromJson(String source) =>
+      AppointmentModel.fromMap(json.decode(source));
 
   @override
   String toString() {
-    return 'AppointmentModel(id: $id, doctorId: $doctorId, patientId: $patientId, date: $date, time: $time, status: $status, createdAt: $createdAt)';
+    return 'AppointmentModel(id: $id, doctorId: $doctorId, patientId: $patientId, doctorName: $doctorName, patientName: $patientName, date: $date, time: $time, status: $status, createdAt: $createdAt)';
   }
 
   @override
@@ -81,6 +94,8 @@ class AppointmentModel {
       other.id == id &&
       other.doctorId == doctorId &&
       other.patientId == patientId &&
+      other.doctorName == doctorName &&
+      other.patientName == patientName &&
       other.date == date &&
       other.time == time &&
       other.status == status &&
@@ -92,6 +107,8 @@ class AppointmentModel {
     return id.hashCode ^
       doctorId.hashCode ^
       patientId.hashCode ^
+      doctorName.hashCode ^
+      patientName.hashCode ^
       date.hashCode ^
       time.hashCode ^
       status.hashCode ^

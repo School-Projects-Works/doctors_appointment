@@ -1,4 +1,3 @@
-import 'package:doctors_appointment/core/views/custom_button.dart';
 import 'package:doctors_appointment/core/views/custom_input.dart';
 import 'package:doctors_appointment/features/home/state/doctors_provider.dart';
 import 'package:doctors_appointment/features/home/views/components/doctor_card.dart';
@@ -7,7 +6,6 @@ import 'package:doctors_appointment/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../auth/pages/register/data/user_model.dart';
 
 class DoctorSection extends ConsumerStatefulWidget {
   const DoctorSection({super.key});

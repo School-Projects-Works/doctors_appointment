@@ -2,6 +2,7 @@ import 'package:doctors_appointment/config/router.dart';
 import 'package:doctors_appointment/config/routes/router_item.dart';
 import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/auth/pages/login/state/login_provider.dart';
+import 'package:doctors_appointment/features/dashboard/state/main_provider.dart';
 import 'package:doctors_appointment/features/dashboard/views/components/side_bar.dart';
 import 'package:doctors_appointment/features/main/views/components/app_bar_item.dart';
 import 'package:doctors_appointment/generated/assets.dart';
@@ -17,6 +18,8 @@ class DashboardMain extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var styles = Styles(context);
+    var dataStream = ref.watch(allDataStreamProvider);
+    var user = ref.watch(userProvider);
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -53,7 +56,7 @@ class DashboardMain extends ConsumerWidget {
                         child: BarItem(
                             padding: const EdgeInsets.only(
                                 right: 40, top: 10, bottom: 10, left: 10),
-                            icon: Icons.logout,
+                            icon: Icons.home,
                             title: 'Home Page',
                             onTap: () {
                               MyRouter(contex: context, ref: ref)
@@ -93,9 +96,74 @@ class DashboardMain extends ConsumerWidget {
                 if (styles.smallerThanTablet)
                   //manu button
                   PopupMenuButton(
+                      color: primaryColor,
                       offset: const Offset(0, 70),
                       itemBuilder: (context) {
-                        return [];
+                        return [
+                          PopupMenuItem(
+                            child: BarItem(
+                                padding: const EdgeInsets.only(
+                                    right: 40, top: 10, bottom: 10, left: 10),
+                                icon: Icons.dashboard,
+                                title: 'Dashboard',
+                                onTap: () {
+                                  MyRouter(contex: context, ref: ref)
+                                      .navigateToRoute(
+                                          RouterItem.dashboardRoute);
+                                }),
+                          ),
+                          if (user.userRole!.toLowerCase() == 'admin')
+                            PopupMenuItem(
+                              child: BarItem(
+                                  padding: const EdgeInsets.only(
+                                      right: 40, top: 10, bottom: 10, left: 10),
+                                  icon: Icons.local_hospital,
+                                  title: 'Doctors',
+                                  onTap: () {
+                                    MyRouter(contex: context, ref: ref)
+                                        .navigateToRoute(
+                                            RouterItem.doctorsRoute);
+                                  }),
+                            ),
+                          if (user.userRole!.toLowerCase() == 'admin')
+                            PopupMenuItem(
+                              child: BarItem(
+                                  padding: const EdgeInsets.only(
+                                      right: 40, top: 10, bottom: 10, left: 10),
+                                  icon: Icons.person,
+                                  title: 'Patients',
+                                  onTap: () {
+                                    MyRouter(contex: context, ref: ref)
+                                        .navigateToRoute(
+                                            RouterItem.patientsRoute);
+                                  }),
+                            ),
+                          PopupMenuItem(
+                            child: BarItem(
+                                padding: const EdgeInsets.only(
+                                    right: 40, top: 10, bottom: 10, left: 10),
+                                icon: Icons.calendar_month,
+                                title: 'Appointments',
+                                onTap: () {
+                                  MyRouter(contex: context, ref: ref)
+                                      .navigateToRoute(
+                                          RouterItem.appointmentsRoute);
+                                }),
+                          ),
+                          if (user.userRole!.toLowerCase() != 'admin')
+                            PopupMenuItem(
+                              child: BarItem(
+                                  padding: const EdgeInsets.only(
+                                      right: 40, top: 10, bottom: 10, left: 10),
+                                  icon: Icons.person,
+                                  title: 'Profile',
+                                  onTap: () {
+                                    MyRouter(contex: context, ref: ref)
+                                        .navigateToRoute(
+                                            RouterItem.profileRoute);
+                                  }),
+                            ),
+                        ];
                       },
                       child: const Icon(
                         Icons.menu,
@@ -116,7 +184,15 @@ class DashboardMain extends ConsumerWidget {
                         child: Container(
                             color: Colors.grey[100],
                             padding: const EdgeInsets.all(10),
-                            child: child)),
+                            child: dataStream.when(
+                                data: (data) {
+                                  return child;
+                                },
+                                error: (error, stack) {
+                                  return Center(child: Text(error.toString()));
+                                },
+                                loading: () => const Center(
+                                    child: CircularProgressIndicator())))),
                   ],
                 )),
     );

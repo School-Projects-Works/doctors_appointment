@@ -20,19 +20,25 @@ class SideBar extends ConsumerWidget {
         color: primaryColor,
         child: Column(children: [
           const SizedBox(height: 20),
-          RichText(
-              text: TextSpan(
-                  text: 'Hello, \n',
-                  style:
-                      styles.body(color: Colors.white38, fontFamily: 'Raleway'),
-                  children: [
-                TextSpan(
-                    text: ref.watch(userProvider).userName,
-                    style: styles.subtitle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: 'Raleway'))
-              ])),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RichText(
+                text: TextSpan(
+                    text: 'Hello, \n',
+                    style: styles.body(
+                        color: Colors.white38, fontFamily: 'Raleway'),
+                    children: [
+                  TextSpan(
+                      text: ref.watch(userProvider).userName,
+                      style: styles.subtitle(
+                          fontWeight: FontWeight.bold,
+                          desktop: 16,
+                          mobile: 13,
+                          tablet: 14,
+                          color: Colors.white,
+                          fontFamily: 'Raleway'))
+                ])),
+          ),
           const SizedBox(
             height: 25,
           ),
@@ -51,12 +57,11 @@ class SideBar extends ConsumerWidget {
                         .navigateToRoute(RouterItem.dashboardRoute);
                   },
                 ),
-                if (user.userRole!.toLowerCase() == 'admin'||user.userRole!.toLowerCase()=='patient')
+                if (user.userRole!.toLowerCase() == 'admin')
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: SideBarItem(
-                      title:
-                          user.userRole!.toLowerCase() == 'patient'? 'My Doctors':'Doctors',
+                      title: 'Doctors',
                       padding: const EdgeInsets.symmetric(
                           vertical: 15, horizontal: 10),
                       icon: Icons.local_hospital,
@@ -68,12 +73,11 @@ class SideBar extends ConsumerWidget {
                       },
                     ),
                   ),
-                if (user.userRole!.toLowerCase() == 'admin'||user.userRole!.toLowerCase() == 'doctor')
+                if (user.userRole!.toLowerCase() == 'admin')
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: SideBarItem(
-                      title:
-                          user.userRole!.toLowerCase() == 'doctor'? 'My Patients':'Patients',
+                      title: 'Patients',
                       padding: const EdgeInsets.symmetric(
                           vertical: 15, horizontal: 10),
                       icon: Icons.person,
@@ -86,7 +90,7 @@ class SideBar extends ConsumerWidget {
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
                   child: SideBarItem(
                     title: 'Appointments',
                     padding: const EdgeInsets.symmetric(
@@ -102,7 +106,7 @@ class SideBar extends ConsumerWidget {
                 ),
                 if (user.userRole!.toLowerCase() != 'admin')
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: SideBarItem(
                       title: 'Profile',
                       padding: const EdgeInsets.symmetric(

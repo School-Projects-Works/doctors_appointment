@@ -5,7 +5,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 enum DialogType { error, success, warning, info }
 
 class CustomDialogs {
-  static dismiss() {
+  static void dismiss() {
     SmartDialog.dismiss();
   }
 

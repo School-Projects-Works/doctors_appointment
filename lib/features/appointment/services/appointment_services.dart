@@ -44,5 +44,22 @@ class AppointmentServices{
         .toList());
   }
 
+  static Future<List<AppointmentModel>> getAppByUserAndDoctor(String s, String doctorId)async {
+    try{
+      final snapshot = await _appointmentsCollection
+      .where('patientId',isEqualTo: s)
+      .where('doctorId',isEqualTo: doctorId)
+      .where('status',whereIn: ['pending','accepted'])
+      .get();
+      return snapshot.docs.map((e) => AppointmentModel.fromMap(e.data() as Map<String, dynamic>)).toList();
+    } catch(e){
+      return [];
+    }
+  }
+
+  static String getId() {
+    return _firestore.collection('appointments').doc().id;
+  }
+
 
 }

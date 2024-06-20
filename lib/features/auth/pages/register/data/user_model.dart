@@ -1,10 +1,12 @@
 import 'dart:convert';
 
-import 'package:doctors_appointment/core/constatnts/doctor_specialty.dart';
-import 'package:doctors_appointment/core/constatnts/regions.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+
+import 'package:doctors_appointment/core/constatnts/doctor_specialty.dart';
+import 'package:doctors_appointment/core/constatnts/regions.dart';
 
 class UserModel {
   String? id;
@@ -227,11 +229,12 @@ class PatientMetaData {
         occupation.hashCode;
   }
 }
-
 class DoctorMetaData {
   String? doctorSpeciality;
   String? doctorExperience;
   String? hospitalName;
+
+
   DoctorMetaData({
     this.doctorSpeciality,
     this.doctorExperience,
@@ -244,10 +247,8 @@ class DoctorMetaData {
     ValueGetter<String?>? hospitalName,
   }) {
     return DoctorMetaData(
-      doctorSpeciality:
-          doctorSpeciality != null ? doctorSpeciality() : this.doctorSpeciality,
-      doctorExperience:
-          doctorExperience != null ? doctorExperience() : this.doctorExperience,
+      doctorSpeciality: doctorSpeciality != null ? doctorSpeciality() : this.doctorSpeciality,
+      doctorExperience: doctorExperience != null ? doctorExperience() : this.doctorExperience,
       hospitalName: hospitalName != null ? hospitalName() : this.hospitalName,
     );
   }
@@ -274,24 +275,20 @@ class DoctorMetaData {
       DoctorMetaData.fromMap(json.decode(source));
 
   @override
-  String toString() =>
-      'DoctorMetaData(doctorSpeciality: $doctorSpeciality, doctorExperience: $doctorExperience, hospitalName: $hospitalName)';
+  String toString() => 'DoctorMetaData(doctorSpeciality: $doctorSpeciality, doctorExperience: $doctorExperience, hospitalName: $hospitalName)';
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
+  
     return other is DoctorMetaData &&
-        other.doctorSpeciality == doctorSpeciality &&
-        other.doctorExperience == doctorExperience &&
-        other.hospitalName == hospitalName;
+      other.doctorSpeciality == doctorSpeciality &&
+      other.doctorExperience == doctorExperience &&
+      other.hospitalName == hospitalName;
   }
 
   @override
-  int get hashCode =>
-      doctorSpeciality.hashCode ^
-      doctorExperience.hashCode ^
-      hospitalName.hashCode;
+  int get hashCode => doctorSpeciality.hashCode ^ doctorExperience.hashCode ^ hospitalName.hashCode;
 }
 
 class UserAddressModel {

@@ -185,9 +185,19 @@ class NavBar extends ConsumerWidget {
                                         : Assets.imagesFemale,
                               );
                             } else {
-                              NetworkImage(user.userImage!);
+                              NetworkImage(
+                                user.userImage!,
+                                scale: 0.1,
+                              );
                             }
                           }(),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: ref.watch(userProvider).userImage != null
+                                ? Image.network(
+                                    ref.watch(userProvider).userImage!)
+                                : null,
+                          ),
                         ),
                         itemBuilder: (context) {
                           return [

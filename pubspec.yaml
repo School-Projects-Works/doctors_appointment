@@ -40,6 +40,9 @@ dependencies:
   faker: ^2.1.0
   fl_chart: ^0.68.0
   collection: ^1.18.0
+  data_table_2: ^2.5.15
+  image_picker: ^1.1.2
+  firebase_storage: ^11.7.7
 
 dev_dependencies:
   flutter_test:

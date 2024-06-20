@@ -18,8 +18,8 @@ class RouterItem {
       path: '/forgot-password', name: 'forgot-password', allowAccess: false);
   static RouterItem settingsRoute =
       RouterItem(path: '/settings', name: 'settings', allowAccess: false);
-static RouterItem newAppointmentRoute = RouterItem(
-      path: '/appointment', name: 'appointment', allowAccess: false);
+  static RouterItem newAppointmentRoute =
+      RouterItem(path: '/appointment', name: 'appointment', allowAccess: false);
   static RouterItem aboutRoute = RouterItem(path: '/about', name: 'about');
   static RouterItem contactRoute =
       RouterItem(path: '/contact', name: 'contact');
@@ -28,12 +28,15 @@ static RouterItem newAppointmentRoute = RouterItem(
   static RouterItem profileRoute =
       RouterItem(path: '/profile', name: 'profile', allowAccess: false);
   static RouterItem doctorsRoute =
-      RouterItem(path: '/admin/doctors', name: 'doctors', allowAccess: false);
+      RouterItem(path: '/doctors', name: 'doctors', allowAccess: false);
   static RouterItem patientsRoute =
-      RouterItem(path: '/admin/patients', name: 'patients', allowAccess: false);
+      RouterItem(path: '/patients', name: 'patients', allowAccess: false);
   static RouterItem appointmentsRoute = RouterItem(
-      path: '/admin/appointments', name: 'appointments', allowAccess: false);
+      path: '/appointments', name: 'appointments', allowAccess: false);
 
+  static RouterItem viewUserRoute = RouterItem(
+    path: '/view-user/:id',name: 'view-user'
+  );
   static List<RouterItem> get allRoutes => [
         homeRoute,
         loginRoute,
@@ -42,7 +45,12 @@ static RouterItem newAppointmentRoute = RouterItem(
         settingsRoute,
         aboutRoute,
         contactRoute,
-        dashboardRoute
+        dashboardRoute,
+        doctorsRoute,
+        patientsRoute,
+        appointmentsRoute,
+        forgotPasswordRoute,
+        newAppointmentRoute
       ];
 
   static RouterItem getRouteByPath(String fullPath) {
