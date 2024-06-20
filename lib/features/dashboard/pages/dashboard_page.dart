@@ -20,7 +20,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     var styles = Styles(context);
     var doctorsList = ref.watch(doctorFilterProvider);
     var patientsList = ref.watch(patientFilterProvider);
-    var appointmentsList = ref.watch(appointmentFilterProvider);
+    var appointmentsList = ref.watch(appointmentFilterProvider(null));
     
     var doctorsByCretedAt = groupBy(
         doctorsList.items,
