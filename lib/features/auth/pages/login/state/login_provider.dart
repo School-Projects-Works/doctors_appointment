@@ -40,16 +40,25 @@ class LoginProvider extends StateNotifier<LoginModel> {
           localStorage.remove('user');
           CustomDialogs.dismiss();
           CustomDialogs.toast(
-              message: 'You are band from accessing this platform',
+              message:
+                  'You are band from accessing this platform. Contact admin for more information',
               type: DialogType.error);
           return;
         }
         if (user.emailVerified ||
             userData.userRole == 'Admin' ||
-            userData.email!.contains('fusekoda')) {
+            userData.email!.contains('fusekoda') ||
+            userData.email!.contains('koda.')) {
           CustomDialogs.dismiss();
           //get user from database
           //save user data to local storage
+          if (userData.userRole!.toLowerCase() == 'doctor' &&
+              userData.userImage == null) {
+            CustomDialogs.showDialog(
+                message:
+                    'You will not be listed as doctor until you upload image',
+                type: DialogType.error);
+          }
           ref.read(userProvider.notifier).setUser(userData);
 
           // ignore: use_build_context_synchronously
@@ -108,13 +117,20 @@ class UserProvider extends StateNotifier<UserModel> {
   updateUer(String? id) async {
     var userData = await RegistrationServices.getUserData(id!);
     if (userData != null) {
-      if(userData.userStatus!.toLowerCase() == 'banned'){
+      if (userData.userStatus!.toLowerCase() == 'banned') {
         final Storage localStorage = window.localStorage;
         localStorage.remove('user');
         CustomDialogs.toast(
-            message: 'You are band from accessing this platform',
+            message:
+                'You are band from accessing this platform. Contact admin for more information',
             type: DialogType.error);
         return;
+      }
+      if (userData.userRole!.toLowerCase() == 'doctor' &&
+          userData.userImage == null) {
+        CustomDialogs.showDialog(
+            message: 'You will not be listed as doctor until you upload image',
+            type: DialogType.error);
       }
       state = userData;
     }

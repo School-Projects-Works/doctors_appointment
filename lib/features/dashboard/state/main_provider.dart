@@ -1,6 +1,7 @@
+import 'package:doctors_appointment/core/functions/sms_api.dart';
+import 'package:doctors_appointment/features/auth/pages/login/state/login_provider.dart';
 import 'package:doctors_appointment/features/home/services/doctor_services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/appointment/data/appointment_model.dart';
 import 'package:doctors_appointment/features/appointment/services/appointment_services.dart';
@@ -9,70 +10,14 @@ import 'package:doctors_appointment/features/auth/pages/register/services/regist
 import 'package:doctors_appointment/features/home/views/components/reviews/data/review_model.dart';
 import 'package:doctors_appointment/features/home/views/components/reviews/services/review_services.dart';
 
-// class DataModel {
-//   List<UserModel> doctors;
-//   List<UserModel> patients;
-//   List<ReviewModel> reviews;
-//   List<AppointmentModel> appointments;
-//   DataModel({
-//     this.doctors = const [],
-//     this.patients = const [],
-//     this.reviews = const [],
-//     this.appointments = const [],
-//   });
-
-//   DataModel copyWith({
-//     List<UserModel>? doctors,
-//     List<UserModel>? patients,
-//     List<ReviewModel>? reviews,
-//     List<AppointmentModel>? appointments,
-//   }) {
-//     return DataModel(
-//       doctors: doctors ?? this.doctors,
-//       patients: patients ?? this.patients,
-//       reviews: reviews ?? this.reviews,
-//       appointments: appointments ?? this.appointments,
-//     );
-//   }
-// }
-
-// final allDataStreamProvide = StreamProvider<DataModel>((ref) async* {
-//   var data = DataModel();
-//   var users = RegistrationServices.getUsers();
-//   var reviews = ReviewServices.getAllReviews();
-//   var appointments = AppointmentServices.getAllAppointments();
-//   await for (var item in users) {
-//    var doctors = item
-//         .where((element) => element.userRole!.toLowerCase() == 'doctor')
-//         .toList();
-//          ref.read(doctorFilterProvider.notifier).setItems(doctors);
-//     var patients = item
-//         .where((element) => element.userRole!.toLowerCase() == 'patient')
-//         .toList();
-//     ref.read(patientFilterProvider.notifier).setItems(patients);
-//     data.copyWith(doctors: doctors, patients: patients);
-//     await for (var item in reviews) {
-//       data.copyWith(reviews: item);
-//       ref.read(reviewsProvider.notifier).setItems(data.reviews);
-//       await for (var item in appointments) {
-//         data.copyWith(appointments: item);
-//         ref.read(allAppointmentsProvider.notifier).state = data.appointments;
-//         yield data;
-//       }
-//     }
-//   }
-// });
-
-
-
-
 final adminDotcorStreamProvider = StreamProvider<List<UserModel>>((ref) async* {
-  var data =  DoctorServices.getDoctorsByAdmin();
+  var data = DoctorServices.getDoctorsByAdmin();
   await for (var item in data) {
     ref.read(doctorFilterProvider.notifier).setItems(item);
     yield item;
   }
 });
+
 class DoctorFilter {
   List<UserModel> items;
   List<UserModel> filteredList;
@@ -90,7 +35,6 @@ class DoctorFilter {
       filteredList: filteredList ?? this.filteredList,
     );
   }
-
 }
 
 final doctorFilterProvider =
@@ -127,6 +71,12 @@ class DoctorFilterProvider extends StateNotifier<DoctorFilter> {
     doctor = doctor.copyWith(userStatus: () => status);
     var res = await RegistrationServices.updateUser(doctor);
     if (res) {
+      //send notification to doctor
+      var phone = doctor.userPhone;
+      var message = status == 'banned'
+          ? 'Your Account has been Blocked.You can no longer access the E-Doctor Platform. Contact Admin for more information'
+          : 'Your Account has been Unblocked. You can now access the E-Doctor Platform';
+      await SmsApi().sendMessage(phone!, message);
       state = state.copyWith(
           filteredList: state.filteredList
               .map((e) => e.id == doctor.id ? doctor : e)
@@ -150,14 +100,15 @@ class DoctorFilterProvider extends StateNotifier<DoctorFilter> {
   }
 }
 
-
-final adminPatientStreamProvider = StreamProvider<List<UserModel>>((ref) async* {
+final adminPatientStreamProvider =
+    StreamProvider<List<UserModel>>((ref) async* {
   var data = RegistrationServices.getPatients();
   await for (var item in data) {
     ref.read(patientFilterProvider.notifier).setItems(item);
     yield item;
   }
 });
+
 class PatientFilter {
   List<UserModel> items;
   List<UserModel> filteredList;
@@ -204,7 +155,9 @@ class PatientFilterProvider extends StateNotifier<PatientFilter> {
   void updatePatient(UserModel patient, String status) async {
     CustomDialogs.dismiss();
     CustomDialogs.loading(
-        message: status == 'banned' ? 'Blocking Patient...' : 'Unblocking Patient...');
+        message: status == 'banned'
+            ? 'Blocking Patient...'
+            : 'Unblocking Patient...');
     patient = patient.copyWith(userStatus: () => status);
     var res = await RegistrationServices.updateUser(patient);
     if (res) {
@@ -212,8 +165,9 @@ class PatientFilterProvider extends StateNotifier<PatientFilter> {
           filteredList: state.filteredList
               .map((e) => e.id == patient.id ? patient : e)
               .toList(),
-          items:
-              state.items.map((e) => e.id == patient.id ? patient : e).toList());
+          items: state.items
+              .map((e) => e.id == patient.id ? patient : e)
+              .toList());
       CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: status == 'banned'
@@ -231,14 +185,15 @@ class PatientFilterProvider extends StateNotifier<PatientFilter> {
   }
 }
 
-
-final adminAppointmentStreamProvider = StreamProvider<List<AppointmentModel>>((ref) async* {
+final adminAppointmentStreamProvider =
+    StreamProvider<List<AppointmentModel>>((ref) async* {
   var data = AppointmentServices.getAllAppointments();
   await for (var item in data) {
     ref.read(allAppointmentsProvider.notifier).state = item;
     yield item;
   }
 });
+
 class AppointmentFilter {
   List<AppointmentModel> items;
   List<AppointmentModel> filter;
@@ -296,45 +251,98 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
     }
   }
 
-  void cancelAppointment(AppointmentModel appointment) async {
+  void cancelAppointment(AppointmentModel appointment, UserModel user) async {
     CustomDialogs.dismiss();
     CustomDialogs.loading(message: 'Cancelling Appointment');
     var data = await AppointmentServices.updateAppointment(
         appointment.id, {'status': 'cancelled'});
-    CustomDialogs.dismiss();
+
     if (data) {
+      //send notification to patient
+      var phone = appointment.patientId == user.id
+          ? appointment.doctorPhone
+          : appointment.patientPhone;
+      var toWho = appointment.patientId == user.id
+          ? appointment.patientName
+          : appointment.doctorName;
+      var message = 'Your Appointment with $toWho has been cancelled';
+     await SmsApi().sendMessage(phone, message);
       state = state.copyWith(
           items: state.items
               .map((e) => e.id == appointment.id
                   ? appointment.copyWith(status: 'cancelled')
                   : e)
               .toList());
+      CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Appointment Cancelled', type: DialogType.success);
     } else {
+      CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Failed to Cancel Appointment', type: DialogType.error);
     }
   }
 
-  void acceptAppointment(AppointmentModel appointment) async {
+  void acceptAppointment(AppointmentModel appointment, UserModel user) async {
     CustomDialogs.dismiss();
     CustomDialogs.loading(message: 'Accepting Appointment');
     var data = await AppointmentServices.updateAppointment(
         appointment.id, {'status': 'accepted'});
-    CustomDialogs.dismiss();
+
     if (data) {
+      var phone = appointment.patientId == user.id
+          ? appointment.doctorPhone
+          : appointment.patientPhone;
+      var toWho = appointment.patientId == user.id
+          ? appointment.patientName
+          : appointment.doctorName;
+      var message = 'Your Appointment with $toWho has been Accepted';
+     await SmsApi().sendMessage(phone, message);
       state = state.copyWith(
           items: state.items
               .map((e) => e.id == appointment.id
                   ? appointment.copyWith(status: 'accepted')
                   : e)
               .toList());
+      CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Appointment Accepted', type: DialogType.success);
     } else {
+      CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Failed to Accept Appointment', type: DialogType.error);
+    }
+  }
+
+  void completeAppointment(AppointmentModel appointment, UserModel user) async {
+    CustomDialogs.dismiss();
+    CustomDialogs.loading(message: 'Completing Appointment..');
+    var data = await AppointmentServices.updateAppointment(
+        appointment.id, {'status': 'completed'});
+    if (data) {
+      //send notification to patient
+      var phone = appointment.patientId == user.id
+          ? appointment.doctorPhone
+          : appointment.patientPhone;
+      var toWho = appointment.patientId == user.id
+          ? appointment.patientName
+          : appointment.doctorName;
+      var message = 'Your Appointment with $toWho has been Completed';
+      await SmsApi().sendMessage(phone, message);
+       CustomDialogs.dismiss();
+      state = state.copyWith(
+          items: state.items
+              .map((e) => e.id == appointment.id
+                  ? appointment.copyWith(status: 'completed')
+                  : e)
+              .toList());
+      CustomDialogs.dismiss();
+      CustomDialogs.toast(
+          message: 'Appointment Completed', type: DialogType.success);
+    } else {
+      CustomDialogs.dismiss();
+      CustomDialogs.toast(
+          message: 'Failed to Complete Appointment', type: DialogType.error);
     }
   }
 }
@@ -363,17 +371,29 @@ class RescheduleApp extends StateNotifier<AppointmentModel?> {
   void reschedule({required WidgetRef ref}) async {
     CustomDialogs.loading(message: 'Rescheduling Appointment');
     var data = ref.read(newDateTimeprovider);
+    var user = ref.read(userProvider);
     var appointment = state!.copyWith(date: data.date, time: data.time);
     var res = await AppointmentServices.updateAppointment(appointment.id, {
       'date': data.date,
       'time': data.time,
     });
-    CustomDialogs.dismiss();
+   
     if (res) {
+      var phone = appointment.patientId == user.id
+          ? appointment.doctorPhone
+          : appointment.patientPhone;
+      var toWho = appointment.patientId == user.id
+          ? appointment.patientName
+          : appointment.doctorName;
+      var message =
+          'Your Appointment with $toWho has been Rescheduled to ${data.date} at ${data.time}';
+    await SmsApi().sendMessage(phone, message);
       clear();
+       CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Appointment Rescheduled', type: DialogType.success);
     } else {
+       CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Failed to Reschedule Appointment', type: DialogType.error);
     }
@@ -399,8 +419,8 @@ class NewDateTime {
   }
 }
 
-
-final adminReviewsStreamProvider = StreamProvider<List<ReviewModel>>((ref) async* {
+final adminReviewsStreamProvider =
+    StreamProvider<List<ReviewModel>>((ref) async* {
   var data = ReviewServices.getAllReviews();
   await for (var item in data) {
     ref.read(reviewsProvider.notifier).setItems(item);
@@ -420,11 +440,13 @@ class ReviewsProvider extends StateNotifier<List<ReviewModel>> {
   }
 
   double getRating(String doctorId) {
-    var reviews = state.where((element) => element.doctorId == doctorId).toList();
+    var reviews =
+        state.where((element) => element.doctorId == doctorId).toList();
     if (reviews.isEmpty) {
       return 0;
     }
-    var total = reviews.fold<double>(0, (previousValue, element) => previousValue + element.rating);
+    var total = reviews.fold<double>(
+        0, (previousValue, element) => previousValue + element.rating);
     return total / reviews.length;
   }
 }

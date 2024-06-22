@@ -4,7 +4,6 @@ import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/auth/pages/login/state/login_provider.dart';
 import 'package:doctors_appointment/features/dashboard/state/main_provider.dart';
 import 'package:doctors_appointment/features/dashboard/views/components/side_bar.dart';
-import 'package:doctors_appointment/features/home/state/doctors_provider.dart';
 import 'package:doctors_appointment/features/main/views/components/app_bar_item.dart';
 import 'package:doctors_appointment/generated/assets.dart';
 import 'package:doctors_appointment/utils/colors.dart';
@@ -66,6 +65,7 @@ class DashboardMain extends ConsumerWidget {
                             onTap: () {
                               MyRouter(contex: context, ref: ref)
                                   .navigateToRoute(RouterItem.homeRoute);
+                                  Navigator.of(context).pop();
                             }),
                       ),
                       PopupMenuItem(
@@ -83,6 +83,7 @@ class DashboardMain extends ConsumerWidget {
                                   ref
                                       .read(userProvider.notifier)
                                       .logout(context: context);
+                                      Navigator.of(context).pop();
                                 },
                               );
                             }),
@@ -115,6 +116,7 @@ class DashboardMain extends ConsumerWidget {
                                   MyRouter(contex: context, ref: ref)
                                       .navigateToRoute(
                                           RouterItem.dashboardRoute);
+                                          Navigator.of(context).pop();
                                 }),
                           ),
                           if (user.userRole!.toLowerCase() == 'admin')
@@ -128,6 +130,7 @@ class DashboardMain extends ConsumerWidget {
                                     MyRouter(contex: context, ref: ref)
                                         .navigateToRoute(
                                             RouterItem.doctorsRoute);
+                                            Navigator.of(context).pop();
                                   }),
                             ),
                           if (user.userRole!.toLowerCase() == 'admin')
@@ -141,6 +144,7 @@ class DashboardMain extends ConsumerWidget {
                                     MyRouter(contex: context, ref: ref)
                                         .navigateToRoute(
                                             RouterItem.patientsRoute);
+                                            Navigator.of(context).pop();
                                   }),
                             ),
                           PopupMenuItem(
@@ -153,6 +157,7 @@ class DashboardMain extends ConsumerWidget {
                                   MyRouter(contex: context, ref: ref)
                                       .navigateToRoute(
                                           RouterItem.appointmentsRoute);
+                                          Navigator.of(context).pop();
                                 }),
                           ),
                           if (user.userRole!.toLowerCase() != 'admin')
@@ -166,6 +171,7 @@ class DashboardMain extends ConsumerWidget {
                                     MyRouter(contex: context, ref: ref)
                                         .navigateToRoute(
                                             RouterItem.profileRoute);
+                                            Navigator.of(context).pop();
                                   }),
                             ),
                         ];

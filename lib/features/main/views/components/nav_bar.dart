@@ -39,6 +39,7 @@ class NavBar extends ConsumerWidget {
                       onTap: () {
                         MyRouter(ref: ref, contex: context)
                             .navigateToRoute(RouterItem.homeRoute);
+                            Navigator.of(context).pop();
                       },
                       isActive: ref.watch(routerProvider) ==
                           RouterItem.homeRoute.name,
@@ -52,6 +53,7 @@ class NavBar extends ConsumerWidget {
                       onTap: () {
                         MyRouter(ref: ref, contex: context)
                             .navigateToRoute(RouterItem.aboutRoute);
+                            Navigator.of(context).pop();
                       },
                       isActive: ref.watch(routerProvider) ==
                           RouterItem.aboutRoute.name,
@@ -65,6 +67,7 @@ class NavBar extends ConsumerWidget {
                       onTap: () {
                         MyRouter(ref: ref, contex: context)
                             .navigateToRoute(RouterItem.contactRoute);
+                            Navigator.of(context).pop();
                       },
                       isActive: ref.watch(routerProvider) ==
                           RouterItem.contactRoute.name,
@@ -79,6 +82,7 @@ class NavBar extends ConsumerWidget {
                         onTap: () {
                           MyRouter(ref: ref, contex: context)
                               .navigateToRoute(RouterItem.loginRoute);
+                              Navigator.of(context).pop();
                         },
                         isActive: ref.watch(routerProvider) ==
                             RouterItem.loginRoute.name,
@@ -93,6 +97,7 @@ class NavBar extends ConsumerWidget {
                         onTap: () {
                           MyRouter(ref: ref, contex: context)
                               .navigateToRoute(RouterItem.dashboardRoute);
+                              Navigator.of(context).pop();
                         },
                         isActive: ref.watch(routerProvider) ==
                             RouterItem.dashboardRoute.name,
@@ -113,6 +118,8 @@ class NavBar extends ConsumerWidget {
                               ref.read(userProvider.notifier).logout(
                                     context: context,
                                   );
+                                  //close popup
+                                  Navigator.of(context).pop();
                             },
                           );
                         },
@@ -212,6 +219,7 @@ class NavBar extends ConsumerWidget {
                                   MyRouter(ref: ref, contex: context)
                                       .navigateToRoute(
                                           RouterItem.dashboardRoute);
+                                          Navigator.of(context).pop();
                                 },
                                 isActive: ref.watch(routerProvider) ==
                                     RouterItem.dashboardRoute.name,
@@ -234,6 +242,7 @@ class NavBar extends ConsumerWidget {
                                         ref
                                             .read(userProvider.notifier)
                                             .logout(context: context);
+                                            Navigator.of(context).pop();
                                       },
                                     );
                                   }),

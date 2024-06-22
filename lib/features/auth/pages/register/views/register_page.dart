@@ -204,8 +204,8 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                 validator: (phone) {
                   if (phone == null || phone.isEmpty) {
                     return 'Phone number is required';
-                  } else if (phone.length < 10) {
-                    return 'Phone number must be at least 10 characters';
+                  } else if (phone.length != 10) {
+                    return 'Phone number must be exactly 10 characters';
                   }
                   return null;
                 },
@@ -276,7 +276,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
     );
   }
 
-final _formKeyForAddress = GlobalKey<FormState>();
+  final _formKeyForAddress = GlobalKey<FormState>();
   Widget buildAddressSection() {
     var notifier = ref.read(regAddressProvider.notifier);
     var styles = Styles(context);
@@ -386,6 +386,7 @@ final _formKeyForAddress = GlobalKey<FormState>();
       ),
     );
   }
+
   final _formKeyForPatient = GlobalKey<FormState>();
 
   Widget buildPatientMetaData() {
@@ -538,7 +539,10 @@ final _formKeyForAddress = GlobalKey<FormState>();
                     onPressed: () {
                       if (_formKeyForPatient.currentState!.validate()) {
                         _formKeyForPatient.currentState!.save();
-                        notifier.registerUser(ref: ref, form: _formKeyForPatient, context: context);
+                        notifier.registerUser(
+                            ref: ref,
+                            form: _formKeyForPatient,
+                            context: context);
                       }
                     },
                     radius: 5,
@@ -546,7 +550,7 @@ final _formKeyForAddress = GlobalKey<FormState>();
                 ]))));
   }
 
-final _formKeyForDoctor = GlobalKey<FormState>();
+  final _formKeyForDoctor = GlobalKey<FormState>();
   Widget buildDoctorMetaData() {
     var styles = Styles(context);
 
@@ -641,7 +645,10 @@ final _formKeyForDoctor = GlobalKey<FormState>();
                     onPressed: () {
                       if (_formKeyForDoctor.currentState!.validate()) {
                         _formKeyForDoctor.currentState!.save();
-                        notifier.registerUser(ref: ref, form: _formKeyForDoctor, context: context);
+                        notifier.registerUser(
+                            ref: ref,
+                            form: _formKeyForDoctor,
+                            context: context);
                       }
                     },
                     radius: 5,

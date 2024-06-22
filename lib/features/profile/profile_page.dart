@@ -416,15 +416,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       message: 'Are you sure you want to update your profile?',
                       secondBtnText: 'Update',
                       onConfirm: () {
-                        if (_formKey.currentState!.validate()) {
-                          CustomDialogs.showDialog(
-                              message:
-                                  'Are you sure you want to update your profile?',
-                              secondBtnText: 'Update',
-                              onConfirm: () {
-                                notifier.updateUser(context: context, ref: ref);
-                              });
-                        }
+                        notifier.updateUser(context: context, ref: ref);
                       });
                 }
               })

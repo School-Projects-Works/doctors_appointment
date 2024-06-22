@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -7,7 +8,11 @@ class AppointmentModel {
   String doctorId;
   String patientId;
   String doctorName;
+  String doctorPhone;
+  String doctorImage;
   String patientName;
+  String patientPhone;
+  String? patientImage;
   String date;
   String time;
   String status;
@@ -17,7 +22,11 @@ class AppointmentModel {
     required this.doctorId,
     required this.patientId,
     required this.doctorName,
+    required this.doctorPhone,
+    required this.doctorImage,
     required this.patientName,
+    required this.patientPhone,
+    this.patientImage,
     required this.date,
     required this.time,
     required this.status,
@@ -29,7 +38,11 @@ class AppointmentModel {
     String? doctorId,
     String? patientId,
     String? doctorName,
+    String? doctorPhone,
+    String? doctorImage,
     String? patientName,
+    String? patientPhone,
+    ValueGetter<String?>? patientImage,
     String? date,
     String? time,
     String? status,
@@ -40,7 +53,11 @@ class AppointmentModel {
       doctorId: doctorId ?? this.doctorId,
       patientId: patientId ?? this.patientId,
       doctorName: doctorName ?? this.doctorName,
+      doctorPhone: doctorPhone ?? this.doctorPhone,
+      doctorImage: doctorImage ?? this.doctorImage,
       patientName: patientName ?? this.patientName,
+      patientPhone: patientPhone ?? this.patientPhone,
+      patientImage: patientImage != null ? patientImage() : this.patientImage,
       date: date ?? this.date,
       time: time ?? this.time,
       status: status ?? this.status,
@@ -54,7 +71,11 @@ class AppointmentModel {
       'doctorId': doctorId,
       'patientId': patientId,
       'doctorName': doctorName,
+      'doctorPhone': doctorPhone,
+      'doctorImage': doctorImage,
       'patientName': patientName,
+      'patientPhone': patientPhone,
+      'patientImage': patientImage,
       'date': date,
       'time': time,
       'status': status,
@@ -68,7 +89,11 @@ class AppointmentModel {
       doctorId: map['doctorId'] ?? '',
       patientId: map['patientId'] ?? '',
       doctorName: map['doctorName'] ?? '',
+      doctorPhone: map['doctorPhone'] ?? '',
+      doctorImage: map['doctorImage'] ?? '',
       patientName: map['patientName'] ?? '',
+      patientPhone: map['patientPhone'] ?? '',
+      patientImage: map['patientImage'],
       date: map['date'] ?? '',
       time: map['time'] ?? '',
       status: map['status'] ?? '',
@@ -83,7 +108,7 @@ class AppointmentModel {
 
   @override
   String toString() {
-    return 'AppointmentModel(id: $id, doctorId: $doctorId, patientId: $patientId, doctorName: $doctorName, patientName: $patientName, date: $date, time: $time, status: $status, createdAt: $createdAt)';
+    return 'AppointmentModel(id: $id, doctorId: $doctorId, patientId: $patientId, doctorName: $doctorName, doctorPhone: $doctorPhone, doctorImage: $doctorImage, patientName: $patientName, patientPhone: $patientPhone, patientImage: $patientImage, date: $date, time: $time, status: $status, createdAt: $createdAt)';
   }
 
   @override
@@ -95,7 +120,11 @@ class AppointmentModel {
       other.doctorId == doctorId &&
       other.patientId == patientId &&
       other.doctorName == doctorName &&
+      other.doctorPhone == doctorPhone &&
+      other.doctorImage == doctorImage &&
       other.patientName == patientName &&
+      other.patientPhone == patientPhone &&
+      other.patientImage == patientImage &&
       other.date == date &&
       other.time == time &&
       other.status == status &&
@@ -108,7 +137,11 @@ class AppointmentModel {
       doctorId.hashCode ^
       patientId.hashCode ^
       doctorName.hashCode ^
+      doctorPhone.hashCode ^
+      doctorImage.hashCode ^
       patientName.hashCode ^
+      patientPhone.hashCode ^
+      patientImage.hashCode ^
       date.hashCode ^
       time.hashCode ^
       status.hashCode ^

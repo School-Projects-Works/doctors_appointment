@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:doctors_appointment/core/functions/sms_api.dart';
 import 'package:doctors_appointment/features/auth/pages/register/data/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -44,6 +45,11 @@ class RegistrationServices {
       if (!userCredential.user!.emailVerified) {
         await userCredential.user!.sendEmailVerification();
       }
+      //send user sms notifying them of their registration
+      var extraMessage= user.userRole=='Doctor'?'Upload your best picture before you will be listed.':'';
+      var responds = await SmsApi().sendMessage(user.userPhone!,
+          'Welcome ${user.userName} to E-Doctor (Doctors Appointment system), your registration was successful. Open your email to virify your account.$extraMessage');
+  
       user.id = userCredential.user!.uid;
       await _users.doc(user.id).set(user.toMap());
       return ('User created successfully', userCredential.user!);
@@ -77,25 +83,26 @@ class RegistrationServices {
     }
   }
 
-  static createUser(UserModel item) async{
+  static createUser(UserModel item) async {
     await _users.doc(item.id).set(item.toMap());
   }
 
-
-  static Stream<List<UserModel>> getUsers(){
-    return _users.snapshots().map((event) => event.docs.map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>)).toList());
+  static Stream<List<UserModel>> getUsers() {
+    return _users.snapshots().map((event) => event.docs
+        .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))
+        .toList());
   }
 
-  static Future<bool> updateUser(UserModel doctor)async {
+  static Future<bool> updateUser(UserModel doctor) async {
     try {
-     await _users.doc(doctor.id).update(doctor.toMap());
+      await _users.doc(doctor.id).update(doctor.toMap());
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  static Future<String>uploadImage(Uint8List image)async {
+  static Future<String> uploadImage(Uint8List image) async {
     try {
       var ref = FirebaseStorage.instance.ref().child('images/${getId()}');
       await ref.putData(image);
@@ -105,16 +112,16 @@ class RegistrationServices {
     }
   }
 
-  static Stream<List<UserModel>>getPatients() {
-     final snapshot = _users.where('userRole',
-        isEqualTo: 'Patient').where('userStatus', whereIn: [
+  static Stream<List<UserModel>> getPatients() {
+    final snapshot = _users
+        .where('userRole', isEqualTo: 'Patient')
+        .where('userStatus', whereIn: [
       'active',
       'inactive',
       'Inactive',
       'Active',
       'banned',
       'Banned'
-     
     ]).snapshots();
     return snapshot.map((event) => event.docs
         .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))

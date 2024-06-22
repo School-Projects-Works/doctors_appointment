@@ -1,3 +1,4 @@
+import 'package:doctors_appointment/core/functions/sms_api.dart';
 import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/appointment/data/appointment_model.dart';
 import 'package:doctors_appointment/features/appointment/services/appointment_services.dart';
@@ -15,7 +16,9 @@ final doctorsStreamProvider =
     StreamProvider.autoDispose<List<UserModel>>((ref) async* {
   var data = DoctorServices.getDoctors();
   await for (var item in data) {
-    ref.read(doctorsFilterProvider.notifier).setItems(item);
+    ref.read(doctorsFilterProvider.notifier).setItems(item.where((element) {
+          return element.userImage != null;
+        }).toList());
     yield item;
   }
 });
@@ -98,6 +101,9 @@ class SelectedDoctorProvider extends StateNotifier<AppointmentModel?> {
     state = AppointmentModel(
       doctorId: doctor.id!,
       doctorName: doctor.userName!,
+      doctorPhone: doctor.userPhone!,
+      doctorImage: doctor.userImage!,
+      patientPhone: '',
       date: '',
       time: '',
       status: 'pending',
@@ -128,7 +134,10 @@ class SelectedDoctorProvider extends StateNotifier<AppointmentModel?> {
     //check if user do not have pending or accepted appointment with the same doctor
     var existenAppontment = await AppointmentServices.getAppByUserAndDoctor(
         user.id!, state!.doctorId);
-    if (existenAppontment.isNotEmpty) {
+    var pendingApp = existenAppontment
+        .where((element) => element.status.toLowerCase() == 'pending'||element.status.toLowerCase() == 'accepted')
+        .toList();
+    if (pendingApp.isNotEmpty) {
       CustomDialogs.dismiss();
       CustomDialogs.showDialog(
         type: DialogType.error,
@@ -140,11 +149,16 @@ class SelectedDoctorProvider extends StateNotifier<AppointmentModel?> {
     state = state!.copyWith(
       patientId: user.id!,
       patientName: user.userName!,
+      patientImage: () => user.userImage,
+      patientPhone: user.userPhone!,
       id: AppointmentServices.getId(),
       createdAt: () => DateTime.now().millisecondsSinceEpoch,
     );
     var result = await AppointmentServices.createAppointment(state!);
     if (result) {
+      //send sms notification to doctor
+      await SmsApi().sendMessage(state!.doctorPhone, 'You have a new appointment request from ${user.userName} on ${state!.date} at ${state!.time}');
+
       state = null;
       CustomDialogs.dismiss();
       CustomDialogs.showDialog(

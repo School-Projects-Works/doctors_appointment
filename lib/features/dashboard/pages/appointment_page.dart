@@ -269,42 +269,64 @@ class _AppointmentPageState extends ConsumerState<AppointmentsPage> {
                                               ),
                                             ],
                                           )
-                                        : Row(
-                                            children: [
-                                              //view button
-                                              IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                    Icons.remove_red_eye,
-                                                    color: Colors.blue,
-                                                  )),
-                                              const SizedBox(width: 10),
-                                              if (appointment.status
-                                                      .toLowerCase() !=
-                                                  'cancelled')
-                                                PopupMenuButton(
-                                                  itemBuilder: (context) {
-                                                    return [
-                                                      //cancel appointment
-                                                      if (appointment.status
-                                                              .toLowerCase() !=
-                                                          'cancelled')
-                                                        const PopupMenuItem(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 10,
-                                                                  right: 20),
-                                                          value: 'cancel',
-                                                          child: ListTile(
-                                                            title:
-                                                                Text('Cancel'),
-                                                            leading: Icon(
-                                                              Icons.cancel,
-                                                              color: Colors.red,
-                                                            ),
+                                        : appointment.status.toLowerCase() !=
+                                                    'cancelled' &&
+                                                appointment.status
+                                                        .toLowerCase() !=
+                                                    'completed'
+                                            ? PopupMenuButton(
+                                                itemBuilder: (context) {
+                                                  return [
+                                                    //mark as completed
+                                                    if (appointment.status
+                                                                .toLowerCase() !=
+                                                            'completed' &&
+                                                        appointment.status
+                                                                .toLowerCase() !=
+                                                            'cancelled')
+                                                      const PopupMenuItem(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 10,
+                                                                right: 20),
+                                                        value: 'completed',
+                                                        child: ListTile(
+                                                          title: Text(
+                                                              'Mark Completed'),
+                                                          leading: Icon(
+                                                            Icons.check,
+                                                            color: Colors.green,
                                                           ),
                                                         ),
-                                                      //reschedule appointment
+                                                      ),
+                                                    //cancel appointment
+                                                    if (appointment.status
+                                                                .toLowerCase() !=
+                                                            'cancelled' &&
+                                                        appointment.status
+                                                                .toLowerCase() !=
+                                                            'completed')
+                                                      const PopupMenuItem(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 10,
+                                                                right: 20),
+                                                        value: 'cancel',
+                                                        child: ListTile(
+                                                          title: Text('Cancel'),
+                                                          leading: Icon(
+                                                            Icons.cancel,
+                                                            color: Colors.red,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    //reschedule appointment
+                                                    if (appointment.status
+                                                                .toLowerCase() !=
+                                                            'cancelled' &&
+                                                        appointment.status
+                                                                .toLowerCase() !=
+                                                            'completed')
                                                       const PopupMenuItem(
                                                         padding:
                                                             EdgeInsets.only(
@@ -321,79 +343,93 @@ class _AppointmentPageState extends ConsumerState<AppointmentsPage> {
                                                           ),
                                                         ),
                                                       ),
-                                                      if (appointment.status
-                                                                  .toLowerCase() ==
-                                                              'pending' &&
-                                                          appointment
-                                                                  .doctorId ==
-                                                              user.id)
-                                                        const PopupMenuItem(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 10,
-                                                                  right: 20),
-                                                          value: 'accept',
-                                                          child: ListTile(
-                                                            title:
-                                                                Text('Accept'),
-                                                            leading: Icon(
-                                                              Icons.check,
-                                                              color:
-                                                                  Colors.green,
-                                                            ),
+                                                    if (appointment.status
+                                                                .toLowerCase() ==
+                                                            'pending' &&
+                                                        appointment.doctorId ==
+                                                            user.id)
+                                                      const PopupMenuItem(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                left: 10,
+                                                                right: 20),
+                                                        value: 'accept',
+                                                        child: ListTile(
+                                                          title: Text('Accept'),
+                                                          leading: Icon(
+                                                            Icons.check,
+                                                            color: Colors.green,
                                                           ),
                                                         ),
-                                                    ];
-                                                  },
-                                                  onSelected: (value) {
-                                                    if (value == 'cancel') {
-                                                      CustomDialogs.showDialog(
-                                                          message:
-                                                              'Are you sure you want to cancel this appointment?',
-                                                          secondBtnText:
-                                                              'Cancel',
-                                                          type: DialogType
-                                                              .warning,
-                                                          onConfirm: () {
-                                                            ref
-                                                                .read(appointmentFilterProvider(
-                                                                        user.id)
-                                                                    .notifier)
-                                                                .cancelAppointment(
-                                                                    appointment);
-                                                          });
-                                                    } else if (value ==
-                                                        'reschedule') {
-                                                      //show reschedule dialog
-                                                      ref
-                                                          .read(
-                                                              selectedAppointmentProvider
+                                                      ),
+                                                  ];
+                                                },
+                                                onSelected: (value) {
+                                                  if (value == 'cancel') {
+                                                    CustomDialogs.showDialog(
+                                                        message:
+                                                            'Are you sure you want to cancel this appointment?',
+                                                        secondBtnText: 'Cancel',
+                                                        type:
+                                                            DialogType.warning,
+                                                        onConfirm: () {
+                                                          ref
+                                                              .read(appointmentFilterProvider(
+                                                                      user.id)
                                                                   .notifier)
-                                                          .setAppointment(
-                                                              appointment);
-                                                    } else if (value ==
-                                                        'accept') {
-                                                      CustomDialogs.showDialog(
-                                                          message:
-                                                              'Are you sure you want to accept this appointment?',
-                                                          secondBtnText:
-                                                              'Accept',
-                                                          type: DialogType
-                                                              .warning,
-                                                          onConfirm: () {
-                                                            ref
-                                                                .read(appointmentFilterProvider(
-                                                                        user.id)
-                                                                    .notifier)
-                                                                .acceptAppointment(
-                                                                    appointment);
-                                                          });
-                                                    }
-                                                  },
-                                                  child: const Icon(Icons.apps),
-                                                )
-                                            ],
-                                          ))
+                                                              .cancelAppointment(
+                                                                  appointment,
+                                                                  user);
+                                                        });
+                                                  } else if (value ==
+                                                      'reschedule') {
+                                                    //show reschedule dialog
+                                                    ref
+                                                        .read(
+                                                            selectedAppointmentProvider
+                                                                .notifier)
+                                                        .setAppointment(
+                                                            appointment);
+                                                  } else if (value ==
+                                                      'accept') {
+                                                    CustomDialogs.showDialog(
+                                                        message:
+                                                            'Are you sure you want to accept this appointment?',
+                                                        secondBtnText: 'Accept',
+                                                        type:
+                                                            DialogType.warning,
+                                                        onConfirm: () {
+                                                          ref
+                                                              .read(appointmentFilterProvider(
+                                                                      user.id)
+                                                                  .notifier)
+                                                              .acceptAppointment(
+                                                                  appointment,
+                                                                  user);
+                                                        });
+                                                  } else if (value ==
+                                                      'completed') {
+                                                    CustomDialogs.showDialog(
+                                                        message:
+                                                            'Are you sure you want to mark this appointment as completed?',
+                                                        secondBtnText:
+                                                            'Completed',
+                                                        type:
+                                                            DialogType.warning,
+                                                        onConfirm: () {
+                                                          ref
+                                                              .read(appointmentFilterProvider(
+                                                                      user.id)
+                                                                  .notifier)
+                                                              .completeAppointment(
+                                                                  appointment,
+                                                                  user);
+                                                        });
+                                                  }
+                                                },
+                                                child: const Icon(Icons.apps),
+                                              )
+                                            : const SizedBox.shrink())
                                 ]);
                               }).toList()
                             : []),
