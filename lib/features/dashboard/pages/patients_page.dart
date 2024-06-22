@@ -1,7 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
-import 'package:doctors_appointment/core/views/custom_drop_down.dart';
+import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/core/views/custom_input.dart';
 import 'package:doctors_appointment/features/auth/pages/register/data/user_model.dart';
+import 'package:doctors_appointment/features/dashboard/pages/view_user.dart';
 import 'package:doctors_appointment/features/dashboard/state/main_provider.dart';
 import 'package:doctors_appointment/generated/assets.dart';
 import 'package:doctors_appointment/utils/colors.dart';
@@ -18,12 +19,11 @@ class PatientsPage extends ConsumerStatefulWidget {
 }
 
 class _PatientsPageState extends ConsumerState<PatientsPage> {
-
   @override
   Widget build(BuildContext context) {
     var styles = Styles(context);
     var patientsList = ref.watch(patientFilterProvider);
-     return Container(
+    return Container(
       color: Colors.white,
       width: double.infinity,
       padding: const EdgeInsets.all(10),
@@ -48,7 +48,7 @@ class _PatientsPageState extends ConsumerState<PatientsPage> {
                 )),
           ),
           Expanded(
-            child: patientsList.pages.isEmpty
+            child: patientsList.filteredList.isEmpty
                 ? const Center(child: Text('No Doctor Found'))
                 : Padding(
                     padding: const EdgeInsets.all(16),
@@ -91,7 +91,7 @@ class _PatientsPageState extends ConsumerState<PatientsPage> {
                             ),
                             size: ColumnSize.S,
                           ),
-                         DataColumn2(
+                          DataColumn2(
                             label: Text(
                               'HEIGHT',
                               style: styles.subtitle(color: Colors.white),
@@ -120,8 +120,8 @@ class _PatientsPageState extends ConsumerState<PatientsPage> {
                             numeric: false,
                           ),
                         ],
-                        rows: patientsList.pages.isNotEmpty
-                            ? patientsList.pages[patientsList.page].map((doctor) {
+                        rows: patientsList.filteredList.isNotEmpty
+                            ? patientsList.filteredList.map((doctor) {
                                 var metaData = PatientMetaData.fromMap(
                                     doctor.userMetaData!);
                                 return DataRow(cells: [
@@ -146,13 +146,11 @@ class _PatientsPageState extends ConsumerState<PatientsPage> {
                                           ),
                                   )),
                                   DataCell(Text(doctor.userName ?? '')),
+                                  DataCell(Text(metaData.patientDOB ?? '')),
                                   DataCell(
-                                      Text(metaData.patientDOB ?? '')),
-                                  DataCell(Text(metaData.patientBloodGroup ?? '')),
-                                   DataCell(
-                                      Text(metaData.patientWeight ?? '')),
-                                       DataCell(
-                                      Text(metaData.patientHeight ?? '')),
+                                      Text(metaData.patientBloodGroup ?? '')),
+                                  DataCell(Text(metaData.patientWeight ?? '')),
+                                  DataCell(Text(metaData.patientHeight ?? '')),
                                   DataCell(Container(
                                       width: 122,
                                       padding: const EdgeInsets.symmetric(
@@ -184,24 +182,56 @@ class _PatientsPageState extends ConsumerState<PatientsPage> {
                                     children: [
                                       //view button
                                       IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return ViewUser(user: doctor);
+                                                });
+                                          },
                                           icon: const Icon(
                                             Icons.remove_red_eye,
                                             color: Colors.blue,
                                           )),
                                       const SizedBox(width: 10),
                                       if (doctor.userStatus!.toLowerCase() ==
-                                          'band')
+                                          'banned')
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              CustomDialogs.showDialog(
+                                                  message:
+                                                      'Are you sure you want to unblock this user',
+                                                  secondBtnText: 'Unband',
+                                                  onConfirm: () {
+                                                    ref
+                                                        .read(
+                                                            doctorFilterProvider
+                                                                .notifier)
+                                                        .updateDoctor(
+                                                            doctor, 'active');
+                                                  });
+                                            },
                                             icon: const Icon(
                                               Icons.lock_open,
                                               color: Colors.green,
                                             )),
                                       if (doctor.userStatus!.toLowerCase() !=
-                                          'band')
+                                          'banned')
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              CustomDialogs.showDialog(
+                                                  message:
+                                                      'Are you sure you want to block this user',
+                                                  secondBtnText: 'Band',
+                                                  onConfirm: () {
+                                                    ref
+                                                        .read(
+                                                            doctorFilterProvider
+                                                                .notifier)
+                                                        .updateDoctor(
+                                                            doctor, 'banned');
+                                                  });
+                                            },
                                             icon: const Icon(
                                               Icons.lock,
                                               color: Colors.red,
@@ -214,72 +244,9 @@ class _PatientsPageState extends ConsumerState<PatientsPage> {
                   ),
           ),
           //pageination
-          SizedBox(
-            height: 30,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                //dropdown
-                SizedBox(
-                  width: 100,
-                  child: CustomDropDown(
-                      value: patientsList.pageSize,
-                      items: [10, 20, 50, 100]
-                          .map((index) => DropdownMenuItem(
-                                value: index,
-                                child: Text('$index'),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        ref
-                            .read(patientFilterProvider.notifier)
-                            .setPageSize(value!);
-                      }),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                if (patientsList.page > 0)
-                  IconButton(
-                      style: ButtonStyle(
-                          iconSize: WidgetStateProperty.all(18),
-                          foregroundColor:
-                              WidgetStateProperty.all(Colors.white),
-                          backgroundColor:
-                              WidgetStateProperty.all(Colors.black87)),
-                      onPressed: () {
-                        ref.read(patientFilterProvider.notifier).previousPage();
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        size: 18,
-                      )),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text('${patientsList.page + 1}'),
-                const SizedBox(
-                  width: 10,
-                ),
-                if (patientsList.pages.length != patientsList.page - 1)
-                  IconButton(
-                      style: ButtonStyle(
-                          iconSize: WidgetStateProperty.all(18),
-                          foregroundColor:
-                              WidgetStateProperty.all(Colors.white),
-                          backgroundColor:
-                              WidgetStateProperty.all(Colors.black87)),
-                      onPressed: () {
-                        ref.read(patientFilterProvider.notifier).nextPage();
-                      },
-                      icon: const Icon(Icons.arrow_forward_ios, size: 18)),
-              ],
-            ),
-          ),
           const SizedBox(height: 10),
         ],
       ),
     );
- 
   }
 }

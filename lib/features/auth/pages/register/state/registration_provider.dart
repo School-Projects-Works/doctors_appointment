@@ -117,7 +117,7 @@ class RegMetaPatientDataProvider extends StateNotifier<PatientMetaData> {
     var user = ref.read(userRegistrationProvider);
     user.userAddress = ref.watch(regAddressProvider).toMap();
     user.userMetaData = state.toMap();
-    user.userStatus = 'inactive ';
+    user.userStatus = 'active';
     user.createdAt = DateTime.now().millisecondsSinceEpoch;
     user.id = RegistrationServices.getId();
     var (message, createdUser) = await RegistrationServices.registerUser(user);

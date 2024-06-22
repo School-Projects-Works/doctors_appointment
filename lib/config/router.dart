@@ -51,8 +51,7 @@ class MyRouter {
                       name: RouterItem.viewUserRoute.name,
                       builder: (context, state) {
                         var id = state.pathParameters['id']!;
-                        return  ViewUser(
-                        
+                        return ViewDoctor(
                           userId: id,
                         );
                       }),
@@ -140,9 +139,12 @@ class MyRouter {
     contex.go(item.path);
   }
 
-  void navigateToNamed({required Map<String,String> pathParms, required RouterItem item, Map<String, dynamic>? extra}) {
+  void navigateToNamed(
+      {required Map<String, String> pathParms,
+      required RouterItem item,
+      Map<String, dynamic>? extra}) {
     ref.read(routerProvider.notifier).state = item.name;
-    contex.goNamed(item.name, pathParameters: pathParms,extra: extra);
+    contex.goNamed(item.name, pathParameters: pathParms, extra: extra);
   }
 }
 

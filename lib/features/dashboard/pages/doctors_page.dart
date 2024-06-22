@@ -1,8 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
-import 'package:doctors_appointment/core/views/custom_drop_down.dart';
+import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/core/views/custom_input.dart';
-import 'package:doctors_appointment/features/auth/pages/login/state/login_provider.dart';
 import 'package:doctors_appointment/features/auth/pages/register/data/user_model.dart';
+import 'package:doctors_appointment/features/dashboard/pages/view_user.dart';
 import 'package:doctors_appointment/features/dashboard/state/main_provider.dart';
 import 'package:doctors_appointment/generated/assets.dart';
 import 'package:doctors_appointment/utils/colors.dart';
@@ -10,6 +10,8 @@ import 'package:doctors_appointment/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
+import '../../home/views/components/user_view_page.dart';
 
 class DoctorsPage extends ConsumerStatefulWidget {
   const DoctorsPage({super.key});
@@ -21,7 +23,6 @@ class DoctorsPage extends ConsumerStatefulWidget {
 class _DoctorsPageState extends ConsumerState<DoctorsPage> {
   @override
   Widget build(BuildContext context) {
-    var user = ref.watch(userProvider);
     var styles = Styles(context);
     var doctorsList = ref.watch(doctorFilterProvider);
     return Container(
@@ -49,7 +50,7 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                 )),
           ),
           Expanded(
-            child: doctorsList.pages.isEmpty
+            child: doctorsList.filteredList.isEmpty
                 ? const Center(child: Text('No Doctor Found'))
                 : Padding(
                     padding: const EdgeInsets.all(16),
@@ -85,6 +86,10 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                             ),
                           ),
                           DataColumn2(
+                              size: ColumnSize.S,
+                              label: Text('RATING',
+                                  style: styles.subtitle(color: Colors.white))),
+                          DataColumn2(
                               label: Text(
                                 'STATUS',
                                 style: styles.subtitle(color: Colors.white),
@@ -106,8 +111,8 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                             numeric: false,
                           ),
                         ],
-                        rows: doctorsList.pages.isNotEmpty
-                            ? doctorsList.pages[doctorsList.page].map((doctor) {
+                        rows: doctorsList.filteredList.isNotEmpty
+                            ? doctorsList.filteredList.map((doctor) {
                                 var metaData = DoctorMetaData.fromMap(
                                     doctor.userMetaData!);
                                 return DataRow(cells: [
@@ -135,6 +140,18 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                                   DataCell(
                                       Text(metaData.doctorSpeciality ?? '')),
                                   DataCell(Text(metaData.hospitalName ?? '')),
+                                  DataCell(Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        ref
+                                            .read(reviewsProvider.notifier)
+                                            .getRating(doctor.id!)
+                                            .toStringAsFixed(1),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  )),
                                   DataCell(Container(
                                       width: 122,
                                       padding: const EdgeInsets.symmetric(
@@ -142,7 +159,7 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                                       decoration: BoxDecoration(
                                           color: doctor.userStatus!
                                                       .toLowerCase() ==
-                                                  'band'
+                                                  'banned'
                                               ? Colors.red.withOpacity(.8)
                                               : doctor.userStatus!
                                                           .toLowerCase() ==
@@ -163,27 +180,61 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                                           DateTime.fromMillisecondsSinceEpoch(
                                               doctor.createdAt!)))),
                                   DataCell(Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
                                     children: [
                                       //view button
                                       IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return ViewUser(user: doctor);
+                                                });
+                                          },
                                           icon: const Icon(
                                             Icons.remove_red_eye,
                                             color: Colors.blue,
                                           )),
-                                      const SizedBox(width: 10),
+
                                       if (doctor.userStatus!.toLowerCase() ==
-                                          'band')
+                                          'banned')
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              CustomDialogs.showDialog(
+                                                  message:
+                                                      'Are you sure you want to unblock this user',
+                                                  secondBtnText: 'Unband',
+                                                  onConfirm: () {
+                                                    ref
+                                                        .read(
+                                                            doctorFilterProvider
+                                                                .notifier)
+                                                        .updateDoctor(
+                                                            doctor, 'active');
+                                                  });
+                                            },
                                             icon: const Icon(
                                               Icons.lock_open,
                                               color: Colors.green,
                                             )),
                                       if (doctor.userStatus!.toLowerCase() !=
-                                          'band')
+                                          'banned')
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              CustomDialogs.showDialog(
+                                                  message:
+                                                      'Are you sure you want to block this user',
+                                                  secondBtnText: 'Band',
+                                                  onConfirm: () {
+                                                    ref
+                                                        .read(
+                                                            doctorFilterProvider
+                                                                .notifier)
+                                                        .updateDoctor(
+                                                            doctor, 'banned');
+                                                  });
+                                            },
                                             icon: const Icon(
                                               Icons.lock,
                                               color: Colors.red,
@@ -196,68 +247,6 @@ class _DoctorsPageState extends ConsumerState<DoctorsPage> {
                   ),
           ),
           //pageination
-          SizedBox(
-            height: 30,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                //dropdown
-                SizedBox(
-                  width: 100,
-                  child: CustomDropDown(
-                      value: doctorsList.pageSize,
-                      items: [10, 20, 50, 100]
-                          .map((index) => DropdownMenuItem(
-                                value: index,
-                                child: Text('$index'),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        ref
-                            .read(doctorFilterProvider.notifier)
-                            .setPageSize(value!);
-                      }),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                if (doctorsList.page > 0)
-                  IconButton(
-                      style: ButtonStyle(
-                          iconSize: WidgetStateProperty.all(18),
-                          foregroundColor:
-                              WidgetStateProperty.all(Colors.white),
-                          backgroundColor:
-                              WidgetStateProperty.all(Colors.black87)),
-                      onPressed: () {
-                        ref.read(doctorFilterProvider.notifier).previousPage();
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back_ios,
-                        size: 18,
-                      )),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text('${doctorsList.page + 1}'),
-                const SizedBox(
-                  width: 10,
-                ),
-                if (doctorsList.pages.length != doctorsList.page - 1)
-                  IconButton(
-                      style: ButtonStyle(
-                          iconSize: WidgetStateProperty.all(18),
-                          foregroundColor:
-                              WidgetStateProperty.all(Colors.white),
-                          backgroundColor:
-                              WidgetStateProperty.all(Colors.black87)),
-                      onPressed: () {
-                        ref.read(doctorFilterProvider.notifier).nextPage();
-                      },
-                      icon: const Icon(Icons.arrow_forward_ios, size: 18)),
-              ],
-            ),
-          ),
           const SizedBox(height: 10),
         ],
       ),

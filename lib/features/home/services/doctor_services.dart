@@ -15,6 +15,14 @@ class DoctorServices {
         .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))
         .toList());
   }
+  static Stream<List<UserModel>> getDoctorsByAdmin() {
+    final snapshot = _doctorsCollection
+        .where('userRole', isEqualTo: 'Doctor').where('userStatus',
+            whereIn: ['active', 'inactive', 'Inactive', 'Active','banned','Banned']).snapshots();
+    return snapshot.map((event) => event.docs
+        .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))
+        .toList());
+  }
 
   static Future<UserModel?> getDoctorById(String id) async {
     final snapshot = await _doctorsCollection.doc(id).get();

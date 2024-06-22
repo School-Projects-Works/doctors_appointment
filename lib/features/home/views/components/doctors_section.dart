@@ -18,7 +18,7 @@ class _DoctorSectionState extends ConsumerState<DoctorSection> {
   @override
   Widget build(BuildContext context) {
     var styles = Styles(context);
-    var doctorStream = ref.watch(dcotorsStreamProvider);
+    var doctorStream = ref.watch(doctorsStreamProvider);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20),

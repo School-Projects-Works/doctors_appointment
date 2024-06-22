@@ -104,4 +104,20 @@ class RegistrationServices {
       return '';
     }
   }
+
+  static Stream<List<UserModel>>getPatients() {
+     final snapshot = _users.where('userRole',
+        isEqualTo: 'Patient').where('userStatus', whereIn: [
+      'active',
+      'inactive',
+      'Inactive',
+      'Active',
+      'banned',
+      'Banned'
+     
+    ]).snapshots();
+    return snapshot.map((event) => event.docs
+        .map((e) => UserModel.fromMap(e.data() as Map<String, dynamic>))
+        .toList());
+  }
 }

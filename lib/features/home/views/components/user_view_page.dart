@@ -12,8 +12,8 @@ import 'package:doctors_appointment/utils/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ViewUser extends ConsumerStatefulWidget {
-  const ViewUser({super.key, required this.userId});
+class ViewDoctor extends ConsumerStatefulWidget {
+  const ViewDoctor({super.key, required this.userId});
 
   final String userId;
 
@@ -21,11 +21,11 @@ class ViewUser extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _ViewUserState();
 }
 
-class _ViewUserState extends ConsumerState<ViewUser> {
+class _ViewUserState extends ConsumerState<ViewDoctor> {
   @override
   Widget build(BuildContext context) {
     var styles = Styles(context);
-    var doctorStream = ref.watch(dcotorsStreamProvider);
+    var doctorStream = ref.watch(doctorsStreamProvider);
     print(styles.width);
     return Container(
       color: Colors.white,

@@ -1,6 +1,7 @@
-import 'package:doctors_appointment/core/views/custom_dialog.dart';
+import 'package:doctors_appointment/features/home/services/doctor_services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/appointment/data/appointment_model.dart';
 import 'package:doctors_appointment/features/appointment/services/appointment_services.dart';
 import 'package:doctors_appointment/features/auth/pages/register/data/user_model.dart';
@@ -8,70 +9,88 @@ import 'package:doctors_appointment/features/auth/pages/register/services/regist
 import 'package:doctors_appointment/features/home/views/components/reviews/data/review_model.dart';
 import 'package:doctors_appointment/features/home/views/components/reviews/services/review_services.dart';
 
-class DataModel {
-  List<UserModel> doctors;
-  List<UserModel> patients;
-  List<ReviewModel> reviews;
-  List<AppointmentModel> appointments;
-  DataModel({
-    this.doctors = const [],
-    this.patients = const [],
-    this.reviews = const [],
-    this.appointments = const [],
-  });
-}
+// class DataModel {
+//   List<UserModel> doctors;
+//   List<UserModel> patients;
+//   List<ReviewModel> reviews;
+//   List<AppointmentModel> appointments;
+//   DataModel({
+//     this.doctors = const [],
+//     this.patients = const [],
+//     this.reviews = const [],
+//     this.appointments = const [],
+//   });
 
-final allDataStreamProvider = StreamProvider<DataModel>((ref) async* {
-  var data = DataModel();
-  var users = RegistrationServices.getUsers();
-  var reviews = ReviewServices.getAllReviews();
-  var appointments = AppointmentServices.getAllAppointments();
-  await for (var item in users) {
-    data.doctors = item
-        .where((element) => element.userRole!.toLowerCase() == 'doctor')
-        .toList();
-    data.patients = item
-        .where((element) => element.userRole!.toLowerCase() == 'patient')
-        .toList();
-    ref.read(doctorFilterProvider.notifier).setItems(data.doctors);
-    ref.read(patientFilterProvider.notifier).setItems(data.patients);
-    await for (var item in reviews) {
-      data.reviews = item;
-      await for (var item in appointments) {
-        data.appointments = item;
-        ref.read(allAppointmentsProvider.notifier).state = data.appointments;
+//   DataModel copyWith({
+//     List<UserModel>? doctors,
+//     List<UserModel>? patients,
+//     List<ReviewModel>? reviews,
+//     List<AppointmentModel>? appointments,
+//   }) {
+//     return DataModel(
+//       doctors: doctors ?? this.doctors,
+//       patients: patients ?? this.patients,
+//       reviews: reviews ?? this.reviews,
+//       appointments: appointments ?? this.appointments,
+//     );
+//   }
+// }
 
-        yield data;
-      }
-    }
+// final allDataStreamProvide = StreamProvider<DataModel>((ref) async* {
+//   var data = DataModel();
+//   var users = RegistrationServices.getUsers();
+//   var reviews = ReviewServices.getAllReviews();
+//   var appointments = AppointmentServices.getAllAppointments();
+//   await for (var item in users) {
+//    var doctors = item
+//         .where((element) => element.userRole!.toLowerCase() == 'doctor')
+//         .toList();
+//          ref.read(doctorFilterProvider.notifier).setItems(doctors);
+//     var patients = item
+//         .where((element) => element.userRole!.toLowerCase() == 'patient')
+//         .toList();
+//     ref.read(patientFilterProvider.notifier).setItems(patients);
+//     data.copyWith(doctors: doctors, patients: patients);
+//     await for (var item in reviews) {
+//       data.copyWith(reviews: item);
+//       ref.read(reviewsProvider.notifier).setItems(data.reviews);
+//       await for (var item in appointments) {
+//         data.copyWith(appointments: item);
+//         ref.read(allAppointmentsProvider.notifier).state = data.appointments;
+//         yield data;
+//       }
+//     }
+//   }
+// });
+
+
+
+
+final adminDotcorStreamProvider = StreamProvider<List<UserModel>>((ref) async* {
+  var data =  DoctorServices.getDoctorsByAdmin();
+  await for (var item in data) {
+    ref.read(doctorFilterProvider.notifier).setItems(item);
+    yield item;
   }
 });
-
 class DoctorFilter {
   List<UserModel> items;
-  int page;
-  int pageSize;
-  List<List<UserModel>> pages = [];
+  List<UserModel> filteredList;
   DoctorFilter({
     this.items = const [],
-    this.page = 0,
-    this.pageSize = 10,
-    this.pages = const [],
+    this.filteredList = const [],
   });
 
   DoctorFilter copyWith({
     List<UserModel>? items,
-    int? page,
-    int? pageSize,
-    List<List<UserModel>>? pages,
+    List<UserModel>? filteredList,
   }) {
     return DoctorFilter(
       items: items ?? this.items,
-      page: page ?? this.page,
-      pageSize: pageSize ?? this.pageSize,
-      pages: pages ?? this.pages,
+      filteredList: filteredList ?? this.filteredList,
     );
   }
+
 }
 
 final doctorFilterProvider =
@@ -80,16 +99,14 @@ final doctorFilterProvider =
 });
 
 class DoctorFilterProvider extends StateNotifier<DoctorFilter> {
-  DoctorFilterProvider() : super(DoctorFilter(items: []));
+  DoctorFilterProvider() : super(DoctorFilter(items: [], filteredList: []));
 
   void setItems(List<UserModel> items) async {
-    state = state.copyWith(items: items);
-    groupToPages(items);
+    state = state.copyWith(items: items, filteredList: items);
   }
 
   void filterDoctors(String query) {
     if (query.isEmpty) {
-      groupToPages(state.items);
     } else {
       var filtered = state.items.where((element) {
         var metaData = DoctorMetaData.fromMap(element.userMetaData!);
@@ -98,67 +115,64 @@ class DoctorFilterProvider extends StateNotifier<DoctorFilter> {
                 .contains(query.toLowerCase()) ||
             element.userName!.toLowerCase().contains(query.toLowerCase());
       }).toList();
-      groupToPages(filtered);
+      state = state.copyWith(filteredList: filtered);
     }
   }
 
-  void nextPage() {
-    if (state.page < state.pages.length - 1) {
-      state = state.copyWith(page: state.page + 1);
+  void updateDoctor(UserModel doctor, String status) async {
+    CustomDialogs.dismiss();
+    CustomDialogs.loading(
+        message:
+            status == 'banned' ? 'Blocking Doctor...' : 'Unblocking Doctor...');
+    doctor = doctor.copyWith(userStatus: () => status);
+    var res = await RegistrationServices.updateUser(doctor);
+    if (res) {
+      state = state.copyWith(
+          filteredList: state.filteredList
+              .map((e) => e.id == doctor.id ? doctor : e)
+              .toList(),
+          items:
+              state.items.map((e) => e.id == doctor.id ? doctor : e).toList());
+      CustomDialogs.dismiss();
+      CustomDialogs.toast(
+          message: status == 'banned'
+              ? 'Doctor Banned Successfully'
+              : 'Doctor Unbanned Successfully',
+          type: DialogType.success);
+    } else {
+      CustomDialogs.dismiss();
+      CustomDialogs.toast(
+          message: status == 'banned'
+              ? 'Failed to Band Doctor'
+              : 'Failed to Unban Doctor',
+          type: DialogType.error);
     }
-  }
-
-  void previousPage() {
-    if (state.page > 0) {
-      state = state.copyWith(page: state.page - 1);
-    }
-  }
-
-  void groupToPages(List<UserModel> items) {
-    var pages = <List<UserModel>>[];
-    for (var i = 0; i < items.length; i += state.pageSize) {
-      var end = i + state.pageSize;
-      if (end > items.length) {
-        end = items.length;
-      }
-      if (items.length > end) {
-        pages.add(items.sublist(i, end));
-      } else {
-        pages.add(items);
-      }
-    }
-    state = state.copyWith(pages: pages, page: 0);
-  }
-
-  void setPageSize(int size) {
-    state = state.copyWith(pageSize: size);
-    groupToPages(state.items);
   }
 }
 
+
+final adminPatientStreamProvider = StreamProvider<List<UserModel>>((ref) async* {
+  var data = RegistrationServices.getPatients();
+  await for (var item in data) {
+    ref.read(patientFilterProvider.notifier).setItems(item);
+    yield item;
+  }
+});
 class PatientFilter {
   List<UserModel> items;
-  int page;
-  int pageSize;
-  List<List<UserModel>> pages = [];
+  List<UserModel> filteredList;
   PatientFilter({
     this.items = const [],
-    this.page = 0,
-    this.pageSize = 10,
-    this.pages = const [],
+    this.filteredList = const [],
   });
 
   PatientFilter copyWith({
     List<UserModel>? items,
-    int? page,
-    int? pageSize,
-    List<List<UserModel>>? pages,
+    List<UserModel>? filteredList,
   }) {
     return PatientFilter(
       items: items ?? this.items,
-      page: page ?? this.page,
-      pageSize: pageSize ?? this.pageSize,
-      pages: pages ?? this.pages,
+      filteredList: filteredList ?? this.filteredList,
     );
   }
 }
@@ -169,86 +183,78 @@ final patientFilterProvider =
 });
 
 class PatientFilterProvider extends StateNotifier<PatientFilter> {
-  PatientFilterProvider() : super(PatientFilter(items: []));
+  PatientFilterProvider() : super(PatientFilter(items: [], filteredList: []));
 
   void setItems(List<UserModel> items) async {
-    state = state.copyWith(items: items);
-    groupToPages(items);
+    state = state.copyWith(items: items, filteredList: items);
   }
 
   void filterPatient(String query) {
     if (query.isEmpty) {
-      groupToPages(state.items);
+      state = state.copyWith(filteredList: state.items);
     } else {
       var filtered = state.items.where((element) {
         return element.userName!.toLowerCase().contains(query.toLowerCase());
       }).toList();
-      groupToPages(filtered);
+
+      state = state.copyWith(filteredList: filtered);
     }
   }
 
-  void nextPage() {
-    if (state.page < state.pages.length - 1) {
-      state = state.copyWith(page: state.page + 1);
+  void updatePatient(UserModel patient, String status) async {
+    CustomDialogs.dismiss();
+    CustomDialogs.loading(
+        message: status == 'banned' ? 'Blocking Patient...' : 'Unblocking Patient...');
+    patient = patient.copyWith(userStatus: () => status);
+    var res = await RegistrationServices.updateUser(patient);
+    if (res) {
+      state = state.copyWith(
+          filteredList: state.filteredList
+              .map((e) => e.id == patient.id ? patient : e)
+              .toList(),
+          items:
+              state.items.map((e) => e.id == patient.id ? patient : e).toList());
+      CustomDialogs.dismiss();
+      CustomDialogs.toast(
+          message: status == 'banned'
+              ? 'Patient Banned Successfully'
+              : 'Patient Unbanned Successfully',
+          type: DialogType.success);
+    } else {
+      CustomDialogs.dismiss();
+      CustomDialogs.toast(
+          message: status == 'banned'
+              ? 'Failed to Band Patient'
+              : 'Failed to Unban Patient',
+          type: DialogType.error);
     }
-  }
-
-  void previousPage() {
-    if (state.page > 0) {
-      state = state.copyWith(page: state.page - 1);
-    }
-  }
-
-  void groupToPages(List<UserModel> items) {
-    var pages = <List<UserModel>>[];
-    for (var i = 0; i < items.length; i += state.pageSize) {
-      var end = i + state.pageSize;
-      if (end > items.length) {
-        end = items.length;
-      }
-      if (items.length > end) {
-        pages.add(items.sublist(i, end));
-      } else {
-        pages.add(items);
-      }
-    }
-    state = state.copyWith(pages: pages, page: 0);
-  }
-
-  void setPageSize(int size) {
-    state = state.copyWith(pageSize: size);
-    groupToPages(state.items);
   }
 }
 
+
+final adminAppointmentStreamProvider = StreamProvider<List<AppointmentModel>>((ref) async* {
+  var data = AppointmentServices.getAllAppointments();
+  await for (var item in data) {
+    ref.read(allAppointmentsProvider.notifier).state = item;
+    yield item;
+  }
+});
 class AppointmentFilter {
   List<AppointmentModel> items;
   List<AppointmentModel> filter;
-  int page;
-  int pageSize;
-  List<List<AppointmentModel>> pages = [];
 
   AppointmentFilter({
     this.items = const [],
     this.filter = const [],
-    this.page = 0,
-    this.pageSize = 10,
-    this.pages = const [],
   });
 
   AppointmentFilter copyWith({
     List<AppointmentModel>? items,
     List<AppointmentModel>? filter,
-    int? page,
-    int? pageSize,
-    List<List<AppointmentModel>>? pages,
   }) {
     return AppointmentFilter(
       items: items ?? this.items,
       filter: filter ?? this.filter,
-      page: page ?? this.page,
-      pageSize: pageSize ?? this.pageSize,
-      pages: pages ?? this.pages,
     );
   }
 }
@@ -260,7 +266,7 @@ final allAppointmentsProvider = StateProvider<List<AppointmentModel>>((ref) {
 final appointmentFilterProvider = StateNotifierProvider.family<
     AppointmentFilterProvider, AppointmentFilter, String?>((ref, id) {
   var data = ref.watch(allAppointmentsProvider);
-  if (id != null) {
+  if (id != null && id.isNotEmpty) {
     var items = data
         .where((element) => element.patientId == id || element.doctorId == id)
         .toList();
@@ -274,7 +280,6 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
 
   void setItems(List<AppointmentModel> items) async {
     state = state.copyWith(items: items, filter: items);
-    groupToPages(items);
   }
 
   void filterAppointments(String query) {
@@ -289,40 +294,6 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
       }).toList();
       state = state.copyWith(filter: filtered);
     }
-    groupToPages(state.filter);
-  }
-
-  void nextPage() {
-    if (state.page < state.pages.length - 1) {
-      state = state.copyWith(page: state.page + 1);
-    }
-  }
-
-  void previousPage() {
-    if (state.page > 0) {
-      state = state.copyWith(page: state.page - 1);
-    }
-  }
-
-  void groupToPages(List<AppointmentModel> items) {
-    var pages = <List<AppointmentModel>>[];
-    for (var i = 0; i < items.length; i += state.pageSize) {
-      var end = i + state.pageSize;
-      if (end > items.length) {
-        end = items.length;
-      }
-      if (items.length > end) {
-        pages.add(items.sublist(i, end));
-      } else {
-        pages.add(items);
-      }
-    }
-    state = state.copyWith(pages: pages, page: 0);
-  }
-
-  void setPageSize(int size) {
-    state = state.copyWith(pageSize: size);
-    groupToPages(state.items);
   }
 
   void cancelAppointment(AppointmentModel appointment) async {
@@ -366,10 +337,7 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
           message: 'Failed to Accept Appointment', type: DialogType.error);
     }
   }
-
 }
-
-
 
 final newDateTimeprovider = StateProvider<NewDateTime>((ref) {
   return NewDateTime(date: '', time: '');
@@ -392,7 +360,7 @@ class RescheduleApp extends StateNotifier<AppointmentModel?> {
     state = null;
   }
 
-  void reschedule({required WidgetRef ref})async {
+  void reschedule({required WidgetRef ref}) async {
     CustomDialogs.loading(message: 'Rescheduling Appointment');
     var data = ref.read(newDateTimeprovider);
     var appointment = state!.copyWith(date: data.date, time: data.time);
@@ -412,7 +380,6 @@ class RescheduleApp extends StateNotifier<AppointmentModel?> {
   }
 }
 
-
 class NewDateTime {
   String date;
   String time;
@@ -429,5 +396,35 @@ class NewDateTime {
       date: date ?? this.date,
       time: time ?? this.time,
     );
+  }
+}
+
+
+final adminReviewsStreamProvider = StreamProvider<List<ReviewModel>>((ref) async* {
+  var data = ReviewServices.getAllReviews();
+  await for (var item in data) {
+    ref.read(reviewsProvider.notifier).setItems(item);
+    yield item;
+  }
+});
+
+final reviewsProvider =
+    StateNotifierProvider<ReviewsProvider, List<ReviewModel>>((ref) {
+  return ReviewsProvider();
+});
+
+class ReviewsProvider extends StateNotifier<List<ReviewModel>> {
+  ReviewsProvider() : super([]);
+  void setItems(List<ReviewModel> items) {
+    state = items;
+  }
+
+  double getRating(String doctorId) {
+    var reviews = state.where((element) => element.doctorId == doctorId).toList();
+    if (reviews.isEmpty) {
+      return 0;
+    }
+    var total = reviews.fold<double>(0, (previousValue, element) => previousValue + element.rating);
+    return total / reviews.length;
   }
 }

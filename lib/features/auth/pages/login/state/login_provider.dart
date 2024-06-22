@@ -35,6 +35,15 @@ class LoginProvider extends StateNotifier<LoginModel> {
     if (user != null) {
       var userData = await RegistrationServices.getUserData(user.uid);
       if (userData != null) {
+        if (userData.userStatus!.toLowerCase() == 'banned') {
+          final Storage localStorage = window.localStorage;
+          localStorage.remove('user');
+          CustomDialogs.dismiss();
+          CustomDialogs.toast(
+              message: 'You are band from accessing this platform',
+              type: DialogType.error);
+          return;
+        }
         if (user.emailVerified ||
             userData.userRole == 'Admin' ||
             userData.email!.contains('fusekoda')) {
@@ -99,6 +108,14 @@ class UserProvider extends StateNotifier<UserModel> {
   updateUer(String? id) async {
     var userData = await RegistrationServices.getUserData(id!);
     if (userData != null) {
+      if(userData.userStatus!.toLowerCase() == 'banned'){
+        final Storage localStorage = window.localStorage;
+        localStorage.remove('user');
+        CustomDialogs.toast(
+            message: 'You are band from accessing this platform',
+            type: DialogType.error);
+        return;
+      }
       state = userData;
     }
   }

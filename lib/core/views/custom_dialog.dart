@@ -84,8 +84,8 @@ class CustomDialogs {
       VoidCallback? onConfirm}) {
     return SmartDialog.show(
       alignment: Alignment.center,
-      animationType: SmartAnimationType.centerFade_otherSlide,
-      animationTime: const Duration(milliseconds: 500),
+      animationType: SmartAnimationType.scale,
+      animationTime: const Duration(milliseconds: 300),
       clickMaskDismiss: true,
       maskColor: Colors.black.withOpacity(0.5),
       builder: (context) {
@@ -93,111 +93,113 @@ class CustomDialogs {
         return Container(
           color: Colors.transparent,
           alignment: Alignment.center,
+          width: 400,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: type == DialogType.error
-                          ? Colors.red
-                          : type == DialogType.success
-                              ? Colors.green
-                              : Colors.blue,
-                      borderRadius: BorderRadius.circular(5),
+              Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: type == DialogType.error
+                      ? Colors.red
+                      : type == DialogType.success
+                          ? Colors.green
+                          : Colors.blue,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Icon(
+                        type == DialogType.error
+                            ? Icons.error
+                            : type == DialogType.success
+                                ? Icons.check_circle
+                                : type == DialogType.warning
+                                    ? Icons.warning
+                                    : Icons.info,
+                        color: Colors.white,
+                        size: 35,
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Icon(
-                            type == DialogType.error
-                                ? Icons.error
-                                : type == DialogType.success
-                                    ? Icons.check_circle
-                                    : type == DialogType.warning
-                                        ? Icons.warning
-                                        : Icons.info,
+                    const SizedBox(width: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      child: Text(
+                        message,
+                        style: styles.body(
                             color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 15),
-                          child: Text(
-                            message,
-                            style: styles.body(color: Colors.white),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          height: 30,
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          decoration: const BoxDecoration(
-                            color: Colors.transparent,
-                            border: Border(
-                                top: BorderSide(color: Colors.white, width: 1)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (onConfirm != null &&
-                                  secondBtnText != null &&
-                                  secondBtnText.isNotEmpty)
-                                InkWell(
-                                  onTap: onConfirm,
-                                  child: Row(
-                                    children: [
-                                      Text(secondBtnText,
-                                          style: styles.body(
-                                              color: Colors.white,
-                                              desktop: 12,
-                                              mobile: 12,
-                                              tablet: 12)),
-                                    ],
-                                  ),
-                                ),
-                              if (onConfirm != null &&
-                                  secondBtnText != null &&
-                                  secondBtnText.isNotEmpty)
-                                const VerticalDivider(
-                                  color: Colors.white,
-                                  thickness: 1,
-                                ),
-                              InkWell(
-                                onTap: () {
-                                  SmartDialog.dismiss();
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                        onConfirm != null &&
-                                                secondBtnText != null &&
-                                                secondBtnText.isNotEmpty
-                                            ? 'Cancel'
-                                            : 'Okay',
-                                        style: styles.body(
-                                            color: Colors.white,
-                                            desktop: 12,
-                                            mobile: 12,
-                                            tablet: 12)),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
+                            desktop: 13,
+                            mobile: 13,
+                            tablet: 13),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 35,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border(
+                            top: BorderSide(color: Colors.white, width: 1)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (onConfirm != null &&
+                              secondBtnText != null &&
+                              secondBtnText.isNotEmpty)
+                            Expanded(
+                              child: InkWell(
+                                onTap: onConfirm,
+                                child: Text(secondBtnText,
+                                    textAlign: TextAlign.center,
+                                    style: styles.body(
+                                        color: Colors.white,
+                                        desktop: 14,
+                                        fontWeight: FontWeight.bold,
+                                        mobile: 14,
+                                        tablet: 14)),
+                              ),
+                            ),
+                          if (onConfirm != null &&
+                              secondBtnText != null &&
+                              secondBtnText.isNotEmpty)
+                            const VerticalDivider(
+                              color: Colors.white,
+                              thickness: 1,
+                            ),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                SmartDialog.dismiss();
+                              },
+                              child: Text(
+                                  onConfirm != null &&
+                                          secondBtnText != null &&
+                                          secondBtnText.isNotEmpty
+                                      ? 'Cancel'
+                                      : 'Okay',
+                                  textAlign: TextAlign.center,
+                                  style: styles.body(
+                                      color: Colors.white,
+                                      fontFamily: 'Ralway',
+                                      desktop: 13,
+                                      mobile: 13,
+                                      tablet: 13)),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

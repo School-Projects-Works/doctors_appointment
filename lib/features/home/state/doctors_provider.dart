@@ -11,7 +11,7 @@ import 'package:doctors_appointment/features/auth/pages/register/data/user_model
 import 'package:doctors_appointment/features/home/services/doctor_services.dart';
 import 'package:intl/intl.dart';
 
-final dcotorsStreamProvider =
+final doctorsStreamProvider =
     StreamProvider.autoDispose<List<UserModel>>((ref) async* {
   var data = DoctorServices.getDoctors();
   await for (var item in data) {

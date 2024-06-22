@@ -4,6 +4,7 @@ import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/auth/pages/login/state/login_provider.dart';
 import 'package:doctors_appointment/features/dashboard/state/main_provider.dart';
 import 'package:doctors_appointment/features/dashboard/views/components/side_bar.dart';
+import 'package:doctors_appointment/features/home/state/doctors_provider.dart';
 import 'package:doctors_appointment/features/main/views/components/app_bar_item.dart';
 import 'package:doctors_appointment/generated/assets.dart';
 import 'package:doctors_appointment/utils/colors.dart';
@@ -18,7 +19,11 @@ class DashboardMain extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var styles = Styles(context);
-    var dataStream = ref.watch(allDataStreamProvider);
+    // var dataStream = ref.watch(allDataStreamProvider);
+    var doctorsStream = ref.watch(adminDotcorStreamProvider);
+    var patientStream = ref.watch(adminPatientStreamProvider);
+    var appointmentStream = ref.watch(adminAppointmentStreamProvider);
+    var reviewsStream = ref.watch(adminReviewsStreamProvider);
     var user = ref.watch(userProvider);
     return SafeArea(
       child: Scaffold(
@@ -184,9 +189,40 @@ class DashboardMain extends ConsumerWidget {
                         child: Container(
                             color: Colors.grey[100],
                             padding: const EdgeInsets.all(10),
-                            child: dataStream.when(
+                            child: patientStream.when(
                                 data: (data) {
-                                  return child;
+                                  return doctorsStream.when(
+                                      data: (doctors) {
+                                        return appointmentStream.when(
+                                            data: (appointments) {
+                                              return reviewsStream.when(
+                                                  data: (reviews) {
+                                                    return child;
+                                                  },
+                                                  error: (error, stack) {
+                                                    return Center(
+                                                        child: Text(
+                                                            error.toString()));
+                                                  },
+                                                  loading: () => const Center(
+                                                      child:
+                                                          CircularProgressIndicator()));
+                                            },
+                                            error: (error, stack) {
+                                              return Center(
+                                                  child:
+                                                      Text(error.toString()));
+                                            },
+                                            loading: () => const Center(
+                                                child:
+                                                    CircularProgressIndicator()));
+                                      },
+                                      error: (error, stack) {
+                                        return Center(
+                                            child: Text(error.toString()));
+                                      },
+                                      loading: () => const Center(
+                                          child: CircularProgressIndicator()));
                                 },
                                 error: (error, stack) {
                                   return Center(child: Text(error.toString()));
