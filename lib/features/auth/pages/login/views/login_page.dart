@@ -1,7 +1,6 @@
 import 'package:doctors_appointment/config/router.dart';
 import 'package:doctors_appointment/config/routes/router_item.dart';
 import 'package:doctors_appointment/core/views/custom_button.dart';
-import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/core/views/custom_input.dart';
 import 'package:doctors_appointment/features/auth/pages/login/state/login_provider.dart';
 import 'package:doctors_appointment/generated/assets.dart';
