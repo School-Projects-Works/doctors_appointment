@@ -266,13 +266,14 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
           ? appointment.patientName
           : appointment.doctorName;
       var message = 'Your Appointment with $toWho has been cancelled';
-     await SmsApi().sendMessage(phone, message);
+      await SmsApi().sendMessage(phone, message);
       state = state.copyWith(
           items: state.items
               .map((e) => e.id == appointment.id
                   ? appointment.copyWith(status: 'cancelled')
                   : e)
               .toList());
+      CustomDialogs.dismiss();
       CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Appointment Cancelled', type: DialogType.success);
@@ -297,7 +298,7 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
           ? appointment.patientName
           : appointment.doctorName;
       var message = 'Your Appointment with $toWho has been Accepted';
-     await SmsApi().sendMessage(phone, message);
+      await SmsApi().sendMessage(phone, message);
       state = state.copyWith(
           items: state.items
               .map((e) => e.id == appointment.id
@@ -329,7 +330,7 @@ class AppointmentFilterProvider extends StateNotifier<AppointmentFilter> {
           : appointment.doctorName;
       var message = 'Your Appointment with $toWho has been Completed';
       await SmsApi().sendMessage(phone, message);
-       CustomDialogs.dismiss();
+      CustomDialogs.dismiss();
       state = state.copyWith(
           items: state.items
               .map((e) => e.id == appointment.id
@@ -377,7 +378,7 @@ class RescheduleApp extends StateNotifier<AppointmentModel?> {
       'date': data.date,
       'time': data.time,
     });
-   
+
     if (res) {
       var phone = appointment.patientId == user.id
           ? appointment.doctorPhone
@@ -387,13 +388,13 @@ class RescheduleApp extends StateNotifier<AppointmentModel?> {
           : appointment.doctorName;
       var message =
           'Your Appointment with $toWho has been Rescheduled to ${data.date} at ${data.time}';
-    await SmsApi().sendMessage(phone, message);
+      await SmsApi().sendMessage(phone, message);
       clear();
-       CustomDialogs.dismiss();
+      CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Appointment Rescheduled', type: DialogType.success);
     } else {
-       CustomDialogs.dismiss();
+      CustomDialogs.dismiss();
       CustomDialogs.toast(
           message: 'Failed to Reschedule Appointment', type: DialogType.error);
     }
