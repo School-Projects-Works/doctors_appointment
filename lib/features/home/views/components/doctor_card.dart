@@ -31,7 +31,7 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
       children: [
         InkWell(
           onTap: () {
-            MyRouter(contex: context, ref: ref)
+            MyRouter(context: context, ref: ref)
                 .navigateToNamed(item: RouterItem.viewUserRoute, pathParms: {
               'id': widget.doctor.id!,
             }, extra: {

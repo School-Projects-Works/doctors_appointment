@@ -53,7 +53,7 @@ class SideBar extends ConsumerWidget {
                   isActive: ref.watch(routerProvider) ==
                       RouterItem.dashboardRoute.name,
                   onTap: () {
-                    MyRouter(contex: context, ref: ref)
+                    MyRouter(context: context, ref: ref)
                         .navigateToRoute(RouterItem.dashboardRoute);
                   },
                 ),
@@ -68,7 +68,7 @@ class SideBar extends ConsumerWidget {
                       isActive: ref.watch(routerProvider) ==
                           RouterItem.doctorsRoute.name,
                       onTap: () {
-                        MyRouter(contex: context, ref: ref)
+                        MyRouter(context: context, ref: ref)
                             .navigateToRoute(RouterItem.doctorsRoute);
                       },
                     ),
@@ -84,7 +84,7 @@ class SideBar extends ConsumerWidget {
                       isActive: ref.watch(routerProvider) ==
                           RouterItem.patientsRoute.name,
                       onTap: () {
-                        MyRouter(contex: context, ref: ref)
+                        MyRouter(context: context, ref: ref)
                             .navigateToRoute(RouterItem.patientsRoute);
                       },
                     ),
@@ -99,7 +99,7 @@ class SideBar extends ConsumerWidget {
                     isActive: ref.watch(routerProvider) ==
                         RouterItem.appointmentsRoute.name,
                     onTap: () {
-                      MyRouter(contex: context, ref: ref)
+                      MyRouter(context: context, ref: ref)
                           .navigateToRoute(RouterItem.appointmentsRoute);
                     },
                   ),
@@ -115,7 +115,7 @@ class SideBar extends ConsumerWidget {
                       isActive: ref.watch(routerProvider) ==
                           RouterItem.profileRoute.name,
                       onTap: () {
-                        MyRouter(contex: context, ref: ref)
+                        MyRouter(context: context, ref: ref)
                             .navigateToRoute(RouterItem.profileRoute);
                       },
                     ),

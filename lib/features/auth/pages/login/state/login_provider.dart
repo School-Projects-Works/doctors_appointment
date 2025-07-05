@@ -62,7 +62,7 @@ class LoginProvider extends StateNotifier<LoginModel> {
           ref.read(userProvider.notifier).setUser(userData);
 
           // ignore: use_build_context_synchronously
-          MyRouter(contex: context, ref: ref)
+          MyRouter(context: context, ref: ref)
               .navigateToRoute(RouterItem.homeRoute);
         } else {
           CustomDialogs.dismiss();

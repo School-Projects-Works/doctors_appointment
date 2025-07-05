@@ -20,10 +20,10 @@ import '../features/home/views/components/user_view_page.dart';
 
 class MyRouter {
   final WidgetRef ref;
-  final BuildContext contex;
+  final BuildContext context;
   MyRouter({
     required this.ref,
-    required this.contex,
+    required this.context,
   });
   router() => GoRouter(
           initialLocation: RouterItem.homeRoute.path,
@@ -136,7 +136,7 @@ class MyRouter {
 
   void navigateToRoute(RouterItem item) {
     ref.read(routerProvider.notifier).state = item.name;
-    contex.go(item.path);
+    context.go(item.path);
   }
 
   void navigateToNamed(
@@ -144,7 +144,7 @@ class MyRouter {
       required RouterItem item,
       Map<String, dynamic>? extra}) {
     ref.read(routerProvider.notifier).state = item.name;
-    contex.goNamed(item.name, pathParameters: pathParms, extra: extra);
+    context.goNamed(item.name, pathParameters: pathParms, extra: extra);
   }
 }
 

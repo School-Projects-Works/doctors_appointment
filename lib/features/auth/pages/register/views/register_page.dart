@@ -263,7 +263,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                   const Text('Already have an account?'),
                   TextButton(
                       onPressed: () {
-                        MyRouter(ref: ref, contex: context)
+                        MyRouter(ref: ref, context: context)
                             .navigateToRoute(RouterItem.loginRoute);
                       },
                       child: const Text('Login'))
@@ -374,7 +374,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                   const Text('Already have an account?'),
                   TextButton(
                       onPressed: () {
-                        MyRouter(ref: ref, contex: context)
+                        MyRouter(ref: ref, context: context)
                             .navigateToRoute(RouterItem.loginRoute);
                       },
                       child: const Text('Login'))

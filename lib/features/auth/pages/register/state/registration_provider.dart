@@ -28,9 +28,11 @@ class UserRegistrationProvider extends StateNotifier<UserModel> {
   void setUserRole(String? value) {
     state = state.copyWith(userRole: () => value);
   }
-void setName(String s) {
+
+  void setName(String s) {
     state = state.copyWith(userName: () => s);
-}
+  }
+
   void setGender(value) {
     state = state.copyWith(userGender: () => value);
   }
@@ -46,8 +48,6 @@ void setName(String s) {
   void reset() {
     state = UserModel();
   }
-
-  
 }
 
 final regAddressProvider =
@@ -108,11 +108,10 @@ class RegMetaPatientDataProvider extends StateNotifier<PatientMetaData> {
     state = state.copyWith(patientHeight: () => s);
   }
 
-  void registerUser({
-    required WidgetRef ref,
-    required GlobalKey<FormState> form,
-    required BuildContext context
-  }) async {
+  void registerUser(
+      {required WidgetRef ref,
+      required GlobalKey<FormState> form,
+      required BuildContext context}) async {
     CustomDialogs.loading(message: 'Registering User');
     var user = ref.read(userRegistrationProvider);
     user.userAddress = ref.watch(regAddressProvider).toMap();
@@ -131,7 +130,7 @@ class RegMetaPatientDataProvider extends StateNotifier<PatientMetaData> {
       CustomDialogs.toast(
           message: '$message. Please verify your email',
           type: DialogType.success);
-          MyRouter(contex: context, ref: ref)
+      MyRouter(context: context, ref: ref)
           .navigateToRoute(RouterItem.loginRoute);
     } else {
       CustomDialogs.dismiss();
@@ -161,7 +160,9 @@ class RegMetaDoctorDataProvider extends StateNotifier<DoctorMetaData> {
   }
 
   void registerUser(
-      {required WidgetRef ref, required GlobalKey<FormState> form, required BuildContext context}) async {
+      {required WidgetRef ref,
+      required GlobalKey<FormState> form,
+      required BuildContext context}) async {
     CustomDialogs.loading(message: 'Registering User');
     var user = ref.read(userRegistrationProvider);
     user.userAddress = ref.watch(regAddressProvider).toMap();
@@ -182,7 +183,8 @@ class RegMetaDoctorDataProvider extends StateNotifier<DoctorMetaData> {
       CustomDialogs.toast(
           message: '$message. Please verify your email',
           type: DialogType.success);
-          MyRouter(contex: context,ref: ref).navigateToRoute(RouterItem.loginRoute);
+      MyRouter(context: context, ref: ref)
+          .navigateToRoute(RouterItem.loginRoute);
     } else {
       CustomDialogs.dismiss();
       CustomDialogs.toast(message: message, type: DialogType.error);

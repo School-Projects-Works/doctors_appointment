@@ -17,7 +17,7 @@ class FooterPage extends ConsumerWidget {
           // Logo
           Image.asset(Assets.imagesLogoColor, height: 30),
           const SizedBox(width: 20),
-          const Text('© 2021 Doctors Appointment',
+          const Text('© 2025 Doctors Appointment',
               style: TextStyle(color: Colors.white)),
         ],
       ),

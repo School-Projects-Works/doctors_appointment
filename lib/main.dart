@@ -28,8 +28,8 @@ class MyApp extends ConsumerWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
       ),
-       builder: FlutterSmartDialog.init(),
-      routerConfig: MyRouter(ref: ref, contex: context).router(),
+      builder: FlutterSmartDialog.init(),
+      routerConfig: MyRouter(ref: ref, context: context).router(),
     );
   }
 }

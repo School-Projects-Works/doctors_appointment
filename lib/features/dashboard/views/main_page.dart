@@ -63,9 +63,9 @@ class DashboardMain extends ConsumerWidget {
                             icon: Icons.home,
                             title: 'Home Page',
                             onTap: () {
-                              MyRouter(contex: context, ref: ref)
+                              MyRouter(context: context, ref: ref)
                                   .navigateToRoute(RouterItem.homeRoute);
-                                  Navigator.of(context).pop();
+                              Navigator.of(context).pop();
                             }),
                       ),
                       PopupMenuItem(
@@ -83,7 +83,7 @@ class DashboardMain extends ConsumerWidget {
                                   ref
                                       .read(userProvider.notifier)
                                       .logout(context: context);
-                                      Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
                                 },
                               );
                             }),
@@ -113,10 +113,10 @@ class DashboardMain extends ConsumerWidget {
                                 icon: Icons.dashboard,
                                 title: 'Dashboard',
                                 onTap: () {
-                                  MyRouter(contex: context, ref: ref)
+                                  MyRouter(context: context, ref: ref)
                                       .navigateToRoute(
                                           RouterItem.dashboardRoute);
-                                          Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
                                 }),
                           ),
                           if (user.userRole!.toLowerCase() == 'admin')
@@ -127,10 +127,10 @@ class DashboardMain extends ConsumerWidget {
                                   icon: Icons.local_hospital,
                                   title: 'Doctors',
                                   onTap: () {
-                                    MyRouter(contex: context, ref: ref)
+                                    MyRouter(context: context, ref: ref)
                                         .navigateToRoute(
                                             RouterItem.doctorsRoute);
-                                            Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
                                   }),
                             ),
                           if (user.userRole!.toLowerCase() == 'admin')
@@ -141,10 +141,10 @@ class DashboardMain extends ConsumerWidget {
                                   icon: Icons.person,
                                   title: 'Patients',
                                   onTap: () {
-                                    MyRouter(contex: context, ref: ref)
+                                    MyRouter(context: context, ref: ref)
                                         .navigateToRoute(
                                             RouterItem.patientsRoute);
-                                            Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
                                   }),
                             ),
                           PopupMenuItem(
@@ -154,10 +154,10 @@ class DashboardMain extends ConsumerWidget {
                                 icon: Icons.calendar_month,
                                 title: 'Appointments',
                                 onTap: () {
-                                  MyRouter(contex: context, ref: ref)
+                                  MyRouter(context: context, ref: ref)
                                       .navigateToRoute(
                                           RouterItem.appointmentsRoute);
-                                          Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
                                 }),
                           ),
                           if (user.userRole!.toLowerCase() != 'admin')
@@ -168,10 +168,10 @@ class DashboardMain extends ConsumerWidget {
                                   icon: Icons.person,
                                   title: 'Profile',
                                   onTap: () {
-                                    MyRouter(contex: context, ref: ref)
+                                    MyRouter(context: context, ref: ref)
                                         .navigateToRoute(
                                             RouterItem.profileRoute);
-                                            Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
                                   }),
                             ),
                         ];

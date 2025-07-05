@@ -157,7 +157,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                       const Text('Don\'t have an account?'),
                                       TextButton(
                                           onPressed: () {
-                                            MyRouter(ref: ref, contex: context)
+                                            MyRouter(ref: ref, context: context)
                                                 .navigateToRoute(
                                                     RouterItem.registerRoute);
                                           },
