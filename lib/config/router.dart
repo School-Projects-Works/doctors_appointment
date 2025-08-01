@@ -25,7 +25,7 @@ class MyRouter {
     required this.ref,
     required this.context,
   });
-  router() => GoRouter(
+  GoRouter router() => GoRouter(
           initialLocation: RouterItem.homeRoute.path,
           redirect: (context, state) {
             var route = state.fullPath;

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:faker/faker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 import 'package:doctors_appointment/core/constatnts/doctor_specialty.dart';

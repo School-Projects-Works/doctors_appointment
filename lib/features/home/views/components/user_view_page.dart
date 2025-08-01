@@ -10,7 +10,11 @@ import 'package:doctors_appointment/generated/assets.dart';
 import 'package:doctors_appointment/utils/colors.dart';
 import 'package:doctors_appointment/utils/styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_paystack_plus/flutter_paystack_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../utils/generate_appointment_fee.dart'
+    show generateAppointmentFee;
 
 class ViewDoctor extends ConsumerStatefulWidget {
   const ViewDoctor({super.key, required this.userId});
@@ -26,7 +30,6 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
   Widget build(BuildContext context) {
     var styles = Styles(context);
     var doctorStream = ref.watch(doctorsStreamProvider);
-    print(styles.width);
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(10),
@@ -60,6 +63,8 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
 
   Widget _buildLargeScreen(UserModel user,
       {required List<ReviewModel> reviews}) {
+    double appointmentFee = generateAppointmentFee(
+        DoctorMetaData.fromMap(user.userMetaData!).doctorSpeciality ?? '');
     var styles = Styles(context);
     var metaData = DoctorMetaData.fromMap(user.userMetaData!);
     var address = UserAddressModel.fromMap(user.userAddress!);
@@ -279,6 +284,30 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
                         isReadOnly: true,
                       ),
                     const SizedBox(height: 15),
+                    Row(
+                      children: [
+                        Text(
+                          'Appointment Fee: ',
+                          style: styles.subtitle(
+                              color: Colors.black,
+                              desktop: 18,
+                              fontFamily: 'Raleway',
+                              tablet: 16,
+                              mobile: 15),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'GH₵${appointmentFee.toStringAsFixed(2)}',
+                          style: styles.subtitle(
+                              color: Colors.cyan,
+                              desktop: 18,
+                              fontFamily: 'Raleway',
+                              tablet: 16,
+                              mobile: 15),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
                     CustomButton(
                       color: primaryColor,
                       onPressed: () {
@@ -303,9 +332,7 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
                               );
                               return;
                             } else {
-                              ref
-                                  .read(appointmentBookingProvider.notifier)
-                                  .book(ref: ref, context: context);
+                              _bookAppointment(context, appointmentFee);
                             }
                           }
                         } else {
@@ -314,7 +341,7 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
                           );
                         }
                       },
-                      text: 'Book Appointment',
+                      text: 'Proceed Make Payment',
                     )
                   ],
                 ),
@@ -410,7 +437,8 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
   Widget _buildSmallScreen(UserModel user,
       {required List<ReviewModel> reviews}) {
     var styles = Styles(context);
-
+    double appointmentFee = generateAppointmentFee(
+        DoctorMetaData.fromMap(user.userMetaData!).doctorSpeciality ?? '');
     var metaData = DoctorMetaData.fromMap(user.userMetaData!);
     var address = UserAddressModel.fromMap(user.userAddress!);
     var totalRating = reviews.isNotEmpty
@@ -678,6 +706,31 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
             isReadOnly: true,
           ),
 
+        const SizedBox(height: 2),
+        //appointment fee
+        Row(
+          children: [
+            Text(
+              'Appointment Fee: ',
+              style: styles.subtitle(
+                  color: Colors.black,
+                  desktop: 18,
+                  fontFamily: 'Raleway',
+                  tablet: 16,
+                  mobile: 15),
+            ),
+            const SizedBox(width: 5),
+            Text(
+              'GH₵${appointmentFee.toStringAsFixed(2)}',
+              style: styles.subtitle(
+                  color: Colors.black,
+                  desktop: 18,
+                  fontFamily: 'Raleway',
+                  tablet: 16,
+                  mobile: 15),
+            ),
+          ],
+        ),
         const SizedBox(height: 15),
         CustomButton(
           color: primaryColor,
@@ -700,9 +753,7 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
                   );
                   return;
                 } else {
-                  ref
-                      .read(appointmentBookingProvider.notifier)
-                      .book(ref: ref, context: context);
+                  _bookAppointment(context, appointmentFee);
                 }
               }
             } else {
@@ -711,9 +762,33 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
               );
             }
           },
-          text: 'Book Appointment',
+          text: 'Proceed Make Payment',
         )
       ],
+    );
+  }
+
+  void _bookAppointment(BuildContext context, double amount) async {
+    await FlutterPaystackPlus.openPaystackPopup(
+      publicKey: 'pk_test_f065c28fb056e6cc0d1760a4e9b350b5377634e2',
+      customerEmail: ref.watch(userProvider).email ?? 'user@doc-app.com',
+      context: context,
+      secretKey: 'sk_test_422a72101187d3e0229adc06b4e8d9ece30c6d36',
+      plan: '-Your-plan-configured-from-your-dashboard-',
+      amount: (amount).toString(),
+      reference: DateTime.now().millisecondsSinceEpoch.toString(),
+      currency: 'GHS',
+      callBackUrl: "example.com/callback",
+      onClosed: () {
+        CustomDialogs.toast(
+          message: 'Payment cancelled',
+        );
+      },
+      onSuccess: () async {
+        ref
+            .read(appointmentBookingProvider.notifier)
+            .book(ref: ref, context: context);
+      },
     );
   }
 }

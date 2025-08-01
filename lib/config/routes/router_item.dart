@@ -54,6 +54,7 @@ class RouterItem {
       ];
 
   static RouterItem getRouteByPath(String fullPath) {
-    return allRoutes.firstWhere((element) => element.path == fullPath);
+    return allRoutes.where((element) => element.path == fullPath).firstOrNull ??
+        RouterItem(path: fullPath, name: 'unknown', allowAccess: false);
   }
 }
