@@ -1,3 +1,4 @@
+import 'package:doctors_appointment/config/routes/router_item.dart';
 import 'package:doctors_appointment/core/functions/sms_api.dart';
 import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/features/appointment/data/appointment_model.dart';
@@ -11,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:doctors_appointment/features/auth/pages/register/data/user_model.dart';
 import 'package:doctors_appointment/features/home/services/doctor_services.dart';
 import 'package:intl/intl.dart';
+
+import '../../../config/router.dart';
 
 final doctorsStreamProvider =
     StreamProvider.autoDispose<List<UserModel>>((ref) async* {
@@ -130,7 +133,8 @@ class SelectedDoctorProvider extends StateNotifier<AppointmentModel?> {
     CustomDialogs.loading(
       message: 'Booking Appointment...',
     );
-    var user = ref.read(userProvider);
+    ref.read(paymentStateProvider.notifier).state = false;
+    var user = ref.watch(userProvider);
     //check if user do not have pending or accepted appointment with the same doctor
     var existenAppontment = await AppointmentServices.getAppByUserAndDoctor(
         user.id!, state!.doctorId);
@@ -158,8 +162,10 @@ class SelectedDoctorProvider extends StateNotifier<AppointmentModel?> {
     if (result) {
       //send sms notification to doctor
       await SmsApi().sendMessage(state!.doctorPhone, 'You have a new appointment request from ${user.userName} on ${state!.date} at ${state!.time}');
-
+      
       state = null;
+      //navigate to home page
+      MyRouter(context: context, ref: ref).navigateToRoute(RouterItem.homeRoute);
       CustomDialogs.dismiss();
       CustomDialogs.showDialog(
         type: DialogType.success,
@@ -174,3 +180,8 @@ class SelectedDoctorProvider extends StateNotifier<AppointmentModel?> {
     }
   }
 }
+
+
+final paymentStateProvider = StateProvider<bool>((ref) {
+  return false;
+});

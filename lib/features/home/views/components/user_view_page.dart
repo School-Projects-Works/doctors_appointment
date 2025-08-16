@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:doctors_appointment/core/views/custom_button.dart';
 import 'package:doctors_appointment/core/views/custom_dialog.dart';
 import 'package:doctors_appointment/core/views/custom_input.dart';
@@ -10,11 +12,14 @@ import 'package:doctors_appointment/generated/assets.dart';
 import 'package:doctors_appointment/utils/colors.dart';
 import 'package:doctors_appointment/utils/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_paystack_plus/flutter_paystack_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../utils/generate_appointment_fee.dart'
     show generateAppointmentFee;
+import '../../../appointment/services/appointment_services.dart'
+    show AppointmentServices;
 
 class ViewDoctor extends ConsumerStatefulWidget {
   const ViewDoctor({super.key, required this.userId});
@@ -308,41 +313,49 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
                       ],
                     ),
                     const SizedBox(height: 15),
-                    CustomButton(
-                      color: primaryColor,
-                      onPressed: () {
-                        if (ref.watch(userProvider).id != null) {
-                          if (ref.watch(userProvider).id == user.id) {
-                            CustomDialogs.toast(
-                              message:
-                                  'You can not book appointment with yourself',
-                            );
-                            return;
-                          }
-                          if (appointmentProvider == null ||
-                              appointmentProvider.doctorId.isEmpty) {
-                            ref
-                                .read(appointmentBookingProvider.notifier)
-                                .setDoctor(user);
-                          } else {
-                            if (appointmentProvider.date.isEmpty ||
-                                appointmentProvider.time.isEmpty) {
+                    if (ref.watch(paymentStateProvider))
+                      CustomButton(
+                        text: 'Proceed to Book',
+                        onPressed: () {
+                          _bookApp();
+                        },
+                      )
+                    else
+                      CustomButton(
+                        color: primaryColor,
+                        onPressed: () {
+                          if (ref.watch(userProvider).id != null) {
+                            if (ref.watch(userProvider).id == user.id) {
                               CustomDialogs.toast(
-                                message: 'Please select date and time',
+                                message:
+                                    'You can not book appointment with yourself',
                               );
                               return;
-                            } else {
-                              _bookAppointment(context, appointmentFee);
                             }
+                            if (appointmentProvider == null ||
+                                appointmentProvider.doctorId.isEmpty) {
+                              ref
+                                  .read(appointmentBookingProvider.notifier)
+                                  .setDoctor(user);
+                            } else {
+                              if (appointmentProvider.date.isEmpty ||
+                                  appointmentProvider.time.isEmpty) {
+                                CustomDialogs.toast(
+                                  message: 'Please select date and time',
+                                );
+                                return;
+                              } else {
+                                _bookAppointment(context, appointmentFee);
+                              }
+                            }
+                          } else {
+                            CustomDialogs.toast(
+                              message: 'Please login to book appointment',
+                            );
                           }
-                        } else {
-                          CustomDialogs.toast(
-                            message: 'Please login to book appointment',
-                          );
-                        }
-                      },
-                      text: 'Proceed Make Payment',
-                    )
+                        },
+                        text: 'Proceed Make Payment',
+                      )
                   ],
                 ),
               ),
@@ -732,63 +745,170 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
           ],
         ),
         const SizedBox(height: 15),
-        CustomButton(
-          color: primaryColor,
-          onPressed: () {
-            if (ref.watch(userProvider).id != null) {
-              if (ref.watch(userProvider).id == user.id) {
-                CustomDialogs.toast(
-                  message: 'You can not book appointment with yourself',
-                );
-                return;
-              }
-              if (appointmentProvider == null ||
-                  appointmentProvider.doctorId.isEmpty) {
-                ref.read(appointmentBookingProvider.notifier).setDoctor(user);
-              } else {
-                if (appointmentProvider.date.isEmpty ||
-                    appointmentProvider.time.isEmpty) {
+        if (ref.watch(paymentStateProvider))
+          CustomButton(
+            text: 'Proceed to Book',
+            onPressed: () {
+              _bookApp();
+            },
+          )
+        else
+          CustomButton(
+            color: primaryColor,
+            onPressed: () {
+              if (ref.watch(userProvider).id != null) {
+                if (ref.watch(userProvider).id == user.id) {
                   CustomDialogs.toast(
-                    message: 'Please select date and time',
+                    message: 'You can not book appointment with yourself',
                   );
                   return;
-                } else {
-                  _bookAppointment(context, appointmentFee);
                 }
+                if (appointmentProvider == null ||
+                    appointmentProvider.doctorId.isEmpty) {
+                  ref.read(appointmentBookingProvider.notifier).setDoctor(user);
+                } else {
+                  if (appointmentProvider.date.isEmpty ||
+                      appointmentProvider.time.isEmpty) {
+                    CustomDialogs.toast(
+                      message: 'Please select date and time',
+                    );
+                    return;
+                  } else {
+                    _bookAppointment(context, appointmentFee);
+                  }
+                }
+              } else {
+                CustomDialogs.toast(
+                  message: 'Please login to book appointment',
+                );
               }
-            } else {
-              CustomDialogs.toast(
-                message: 'Please login to book appointment',
-              );
-            }
-          },
-          text: 'Proceed Make Payment',
-        )
+            },
+            text: 'Proceed Make Payment',
+          )
       ],
     );
   }
 
+  String paymentReference = '';
   void _bookAppointment(BuildContext context, double amount) async {
-    await FlutterPaystackPlus.openPaystackPopup(
-      publicKey: 'pk_test_f065c28fb056e6cc0d1760a4e9b350b5377634e2',
-      customerEmail: ref.watch(userProvider).email ?? 'user@doc-app.com',
-      context: context,
-      secretKey: 'sk_test_422a72101187d3e0229adc06b4e8d9ece30c6d36',
-      // plan: 'PLN_du7r4qn99t51u52',
-      amount: (amount).toString(),
-      reference: DateTime.now().millisecondsSinceEpoch.toString(),
-      currency: 'GHS',
-      callBackUrl: "example.com/callback",
-      onClosed: () {
-        CustomDialogs.toast(
-          message: 'Payment cancelled',
+    try {
+      CustomDialogs.loading(message: 'Making Payment');
+      var user = ref.watch(userProvider);
+      //check if user do not have pending or accepted appointment with the same doctor
+      var existenAppontment = await AppointmentServices.getAppByUserAndDoctor(
+          user.id!, ref.watch(appointmentBookingProvider)!.doctorId);
+      var pendingApp = existenAppontment
+          .where((element) =>
+              element.status.toLowerCase() == 'pending' ||
+              element.status.toLowerCase() == 'accepted')
+          .toList();
+      if (pendingApp.isNotEmpty) {
+        CustomDialogs.dismiss();
+        CustomDialogs.showDialog(
+          type: DialogType.error,
+          message:
+              'You already have an appointment with this doctor, please cancel the existing appointment to book a new one',
         );
-      },
-      onSuccess: () async {
-        ref
-            .read(appointmentBookingProvider.notifier)
-            .book(ref: ref, context: context);
-      },
-    );
+        return;
+      }
+      var params = jsonEncode({
+        "email": ref.watch(userProvider).email ?? 'user@doc-app.com',
+        "amount": (amount * 100).toString(),
+        'reference': DateTime.now().millisecondsSinceEpoch.toString(),
+        'currency': 'GHS',
+      });
+
+      //send http request
+      var response = await http.post(
+        Uri.https('api.paystack.co', '/transaction/initialize'),
+        headers: {
+          'Authorization':
+              'Bearer sk_test_422a72101187d3e0229adc06b4e8d9ece30c6d36',
+          'Content-Type': 'application/json'
+        },
+        body: params,
+      );
+      if (response.statusCode != 200) {
+        CustomDialogs.dismiss();
+        CustomDialogs.toast(
+          message: 'Payment initialization failed: ${response.body}',
+        );
+        return;
+      }
+      var responseBody = jsonDecode(response.body);
+      print('Response: ${response.body}');
+
+      if (responseBody['status'] == true) {
+        ref.read(paymentStateProvider.notifier).state = true;
+        setState(() {
+          paymentReference = responseBody['data']['reference'];
+        });
+        CustomDialogs.dismiss();
+        CustomDialogs.toast(
+          message: 'Payment initialized successfully',
+        );
+        //open the payment link in a using url_launcher
+        await launchUrl(Uri.parse(responseBody['data']['authorization_url']));
+        CustomDialogs.dismiss();
+      } else {
+        CustomDialogs.dismiss();
+        CustomDialogs.toast(
+          message: 'Payment initialization failed: ${responseBody['message']}',
+        );
+      }
+    } catch (e) {
+      CustomDialogs.dismiss();
+      CustomDialogs.showDialog(
+          message: 'Payment initialization failed: $e', type: DialogType.error);
+    }
+  }
+
+  void _bookApp() async {
+    CustomDialogs.loading(message: 'Booking Appointment');
+    try {
+      if (paymentReference.isEmpty) {
+        CustomDialogs.dismiss();
+        CustomDialogs.showDialog(
+          message: 'Payment reference is empty',
+          type: DialogType.error,
+        );
+        return;
+      }
+      // verify transaction
+      var url =
+          "https://api.paystack.co/transaction/verify/${paymentReference}";
+      var response = await http.get(Uri.parse(url), headers: {
+        'Authorization':
+            'Bearer sk_test_422a72101187d3e0229adc06b4e8d9ece30c6d36',
+      });
+      if (response.statusCode == 200) {
+        var responseBody = jsonDecode(response.body);
+        if (responseBody['status'] == true) {
+          ref
+              .read(appointmentBookingProvider.notifier)
+              .book(ref: ref, context: context);
+
+          CustomDialogs.dismiss();
+        } else {
+          CustomDialogs.dismiss();
+          // ref.read(paymentStateProvider.notifier).state = false;
+          CustomDialogs.showDialog(
+            message: 'Failed to book appointment: Payment not successful',
+            type: DialogType.error,
+          );
+        }
+      } else {
+        CustomDialogs.showDialog(
+          message: 'Failed to book appointment: ${response.body}',
+          type: DialogType.error,
+        );
+      }
+    } catch (e) {
+      CustomDialogs.dismiss();
+      CustomDialogs.showDialog(
+        message: 'Failed to book appointment: $e',
+        type: DialogType.error,
+      );
+    }
   }
 }

@@ -28,6 +28,7 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
 
     return InkWell(
       onTap: () {
+        ref.read(appointmentBookingProvider.notifier).setDoctor(widget.doctor);
         MyRouter(context: context, ref: ref)
             .navigateToNamed(item: RouterItem.viewUserRoute, pathParms: {
           'id': widget.doctor.id!,
