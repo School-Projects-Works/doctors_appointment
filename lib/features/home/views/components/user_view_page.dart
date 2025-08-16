@@ -774,7 +774,7 @@ class _ViewUserState extends ConsumerState<ViewDoctor> {
       customerEmail: ref.watch(userProvider).email ?? 'user@doc-app.com',
       context: context,
       secretKey: 'sk_test_422a72101187d3e0229adc06b4e8d9ece30c6d36',
-      plan: '-Your-plan-configured-from-your-dashboard-',
+      // plan: 'PLN_du7r4qn99t51u52',
       amount: (amount).toString(),
       reference: DateTime.now().millisecondsSinceEpoch.toString(),
       currency: 'GHS',
